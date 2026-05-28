@@ -1,0 +1,21 @@
+name: app_ui_kit
+description: A reusable Flutter UI foundation package with design tokens, themes, form controls, dialogs, feedback, and common layout primitives.
+version: 0.2.0
+publish_to: none
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  toastification: ^3.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
