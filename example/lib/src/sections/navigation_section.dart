@@ -28,6 +28,45 @@ Widget _buildNavigationSection(
   return _ExampleGrid(
     children: [
       _ExampleCard(
+        title: 'UiTabs / UiTabsController',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            UiTabs(
+              controller: state._tabsController,
+              items: [
+                strings.freeCreation,
+                strings.aiScript,
+                strings.videoCopy,
+              ],
+              onChanged: (_) => UiToast.info(strings.changed),
+            ),
+            const SizedBox(height: 16),
+            ValueListenableBuilder<int>(
+              valueListenable: state._tabsController,
+              builder: (context, index, _) {
+                return UiInfoRow(
+                  label: strings.currentMode,
+                  value: _tabLabel(index, strings),
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            UiTabs(
+              selectedIndex: 1,
+              size: UiTabsSize.small,
+              fullWidth: false,
+              items: [
+                strings.freeCreation,
+                strings.aiScript,
+                strings.videoCopy,
+              ],
+              onChanged: (index) => UiToast.info(_tabLabel(index, strings)),
+            ),
+          ],
+        ),
+      ),
+      _ExampleCard(
         title: 'UiMenu / UiMenuItem',
         height: 360,
         child: const _MenuExample(),
@@ -90,6 +129,18 @@ Widget _buildNavigationSection(
       ),
     ],
   );
+}
+
+String _tabLabel(int index, _ExampleStrings strings) {
+  switch (index) {
+    case 1:
+      return strings.aiScript;
+    case 2:
+      return strings.videoCopy;
+    case 0:
+    default:
+      return strings.freeCreation;
+  }
 }
 
 class _MenuExample extends StatelessWidget {

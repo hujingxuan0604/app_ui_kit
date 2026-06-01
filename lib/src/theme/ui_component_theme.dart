@@ -8,12 +8,14 @@ class UiComponentTheme {
   final UiInputTheme input;
   final UiCardTheme card;
   final UiDialogTheme dialog;
+  final UiTabsTheme tabs;
 
   const UiComponentTheme({
     this.button = const UiButtonTheme(),
     this.input = const UiInputTheme(),
     this.card = const UiCardTheme(),
     this.dialog = const UiDialogTheme(),
+    this.tabs = const UiTabsTheme(),
   });
 
   UiComponentTheme copyWith({
@@ -21,12 +23,14 @@ class UiComponentTheme {
     UiInputTheme? input,
     UiCardTheme? card,
     UiDialogTheme? dialog,
+    UiTabsTheme? tabs,
   }) {
     return UiComponentTheme(
       button: button ?? this.button,
       input: input ?? this.input,
       card: card ?? this.card,
       dialog: dialog ?? this.dialog,
+      tabs: tabs ?? this.tabs,
     );
   }
 
@@ -40,6 +44,7 @@ class UiComponentTheme {
       input: UiInputTheme.lerp(a.input, b.input, t),
       card: UiCardTheme.lerp(a.card, b.card, t),
       dialog: UiDialogTheme.lerp(a.dialog, b.dialog, t),
+      tabs: UiTabsTheme.lerp(a.tabs, b.tabs, t),
     );
   }
 
@@ -49,11 +54,12 @@ class UiComponentTheme {
         other.button == button &&
         other.input == input &&
         other.card == card &&
-        other.dialog == dialog;
+        other.dialog == dialog &&
+        other.tabs == tabs;
   }
 
   @override
-  int get hashCode => Object.hash(button, input, card, dialog);
+  int get hashCode => Object.hash(button, input, card, dialog, tabs);
 }
 
 @immutable
@@ -189,6 +195,62 @@ class UiDialogTheme {
 
   @override
   int get hashCode => Object.hash(radius, width);
+}
+
+@immutable
+class UiTabsTheme {
+  final double radius;
+  final double indicatorRadius;
+  final EdgeInsetsGeometry padding;
+  final double smallHeight;
+  final double mediumHeight;
+  final double largeHeight;
+  final double itemMinWidth;
+
+  const UiTabsTheme({
+    this.radius = UiRadii.lg,
+    this.indicatorRadius = UiRadii.md,
+    this.padding = const EdgeInsets.all(4),
+    this.smallHeight = 30,
+    this.mediumHeight = 36,
+    this.largeHeight = 42,
+    this.itemMinWidth = 88,
+  });
+
+  static UiTabsTheme lerp(UiTabsTheme a, UiTabsTheme b, double t) {
+    return UiTabsTheme(
+      radius: _lerpDouble(a.radius, b.radius, t),
+      indicatorRadius: _lerpDouble(a.indicatorRadius, b.indicatorRadius, t),
+      padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t) ?? b.padding,
+      smallHeight: _lerpDouble(a.smallHeight, b.smallHeight, t),
+      mediumHeight: _lerpDouble(a.mediumHeight, b.mediumHeight, t),
+      largeHeight: _lerpDouble(a.largeHeight, b.largeHeight, t),
+      itemMinWidth: _lerpDouble(a.itemMinWidth, b.itemMinWidth, t),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is UiTabsTheme &&
+        other.radius == radius &&
+        other.indicatorRadius == indicatorRadius &&
+        other.padding == padding &&
+        other.smallHeight == smallHeight &&
+        other.mediumHeight == mediumHeight &&
+        other.largeHeight == largeHeight &&
+        other.itemMinWidth == itemMinWidth;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    radius,
+    indicatorRadius,
+    padding,
+    smallHeight,
+    mediumHeight,
+    largeHeight,
+    itemMinWidth,
+  );
 }
 
 double _lerpDouble(double a, double b, double t) {

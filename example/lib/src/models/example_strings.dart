@@ -156,6 +156,10 @@ class _ExampleStrings {
   String get allAssets => isZh ? '全部素材' : 'All assets';
   String get storyboard => isZh ? '分镜' : 'Storyboard';
   String get reference => isZh ? '参考' : 'Reference';
+  String get freeCreation => isZh ? '自由创作' : 'Free creation';
+  String get aiScript => isZh ? 'AI 剧本' : 'AI script';
+  String get videoCopy => isZh ? '视频复刻' : 'Video copy';
+  String get currentMode => isZh ? '当前模式' : 'Current mode';
   String get folders => isZh ? '文件夹' : 'Folders';
   String get searchFolders => isZh ? '搜索文件夹' : 'Search folders';
   String get createFolder => isZh ? '新建文件夹' : 'Create folder';

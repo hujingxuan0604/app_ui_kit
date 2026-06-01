@@ -213,6 +213,88 @@ void main() {
 
     expect(tester.takeException(), isA<AssertionError>());
   });
+
+  testWidgets('UiTabs calls onChanged when an item is selected', (
+    tester,
+  ) async {
+    var selectedIndex = 0;
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: UiTabs(
+          selectedIndex: selectedIndex,
+          items: const ['Free creation', 'AI script', 'Video copy'],
+          onChanged: (index) => selectedIndex = index,
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('AI script'));
+    await tester.pump();
+
+    expect(selectedIndex, 1);
+  });
+
+  testWidgets('UiTabs updates controller when an item is selected', (
+    tester,
+  ) async {
+    final controller = UiTabsController(0);
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: UiTabs(
+          controller: controller,
+          items: const ['Free creation', 'AI script', 'Video copy'],
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Video copy'));
+    await tester.pump();
+
+    expect(controller.value, 2);
+    expect(controller.selectedIndex, 2);
+  });
+
+  testWidgets('UiTabs requires selected index to be within items', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const _TestApp(child: UiTabs(selectedIndex: 2, items: ['Free creation'])),
+    );
+
+    expect(tester.takeException(), isA<AssertionError>());
+  });
+
+  testWidgets('UiTabs requires either selectedIndex or controller', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const _TestApp(child: UiTabs(items: ['Free creation'])),
+    );
+
+    expect(tester.takeException(), isA<AssertionError>());
+  });
+
+  testWidgets('UiTabs accepts either selectedIndex or controller', (
+    tester,
+  ) async {
+    final controller = UiTabsController(0);
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: UiTabs(
+          selectedIndex: 0,
+          controller: controller,
+          items: const ['Free creation'],
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isA<AssertionError>());
+  });
 }
 
 class _TestApp extends StatelessWidget {

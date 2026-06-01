@@ -21,6 +21,7 @@ class _ExampleHomeState extends State<ExampleHome> {
   final _nameController = TextEditingController(text: 'StoryFlow');
   final _searchController = TextEditingController();
   final _panelNameController = TextEditingController(text: '镜头 01');
+  final _tabsController = UiTabsController(0);
   late final ValueNotifier<String> _activeSectionId;
   final _sections = const [
     _CatalogSection('tokens', Icons.palette_outlined),
@@ -60,6 +61,7 @@ class _ExampleHomeState extends State<ExampleHome> {
     _nameController.dispose();
     _searchController.dispose();
     _panelNameController.dispose();
+    _tabsController.dispose();
     super.dispose();
   }
 

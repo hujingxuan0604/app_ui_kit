@@ -30,6 +30,7 @@ export 'src/widgets/inputs/ui_input.dart';
 export 'src/widgets/inputs/ui_select.dart';
 export 'src/widgets/navigation/ui_menu.dart';
 export 'src/widgets/navigation/ui_sidebar.dart';
+export 'src/widgets/navigation/ui_tabs.dart';
 export 'src/widgets/panels/ui_panel.dart';
 export 'src/widgets/surfaces/ui_card.dart';
 export 'src/widgets/surfaces/ui_selectable_card.dart';
