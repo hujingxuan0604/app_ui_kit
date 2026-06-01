@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'ui_icon_action_button.dart';
 
-class UiPreviewActionButton extends StatelessWidget {
+class UiPreviewIconButton extends StatelessWidget {
   final IconData icon;
   final String? tooltip;
   final VoidCallback? onPressed;
   final VoidCallback? onTap;
 
-  const UiPreviewActionButton({
+  const UiPreviewIconButton({
     super.key,
     required this.icon,
     this.tooltip,

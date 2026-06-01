@@ -4,6 +4,8 @@ import '../../models/ui_models.dart';
 import '../../theme/ui_theme_data.dart';
 import '../../tokens/ui_radii.dart';
 import '../buttons/ui_button.dart';
+import '../dialogs/ui_dialog_shell.dart';
+import '../surfaces/ui_selectable_card.dart';
 import 'ui_avatar.dart';
 
 class UiAvatarPickerDialog extends StatefulWidget {
@@ -38,110 +40,81 @@ class _UiAvatarPickerDialogState extends State<UiAvatarPickerDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = context.uiTheme;
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(24),
-      child: Container(
-        width: 520,
-        constraints: const BoxConstraints(maxHeight: 560),
-        decoration: BoxDecoration(
-          color: theme.surface,
-          borderRadius: BorderRadius.circular(UiRadii.xl),
-          border: Border.all(color: theme.border),
-          boxShadow: theme.shadowMd,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
-              child: Text(
-                widget.title,
-                style: TextStyle(
-                  color: theme.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+    return UiDialogShell(
+      title: UiDialogTitle(title: widget.title),
+      content: SizedBox(
+        width: 480,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 360),
+          child: GridView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 88,
+              mainAxisSpacing: 14,
+              crossAxisSpacing: 14,
             ),
-            Divider(height: 1, color: theme.border),
-            Flexible(
-              child: GridView.builder(
-                shrinkWrap: true,
-                padding: const EdgeInsets.all(20),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 96,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                ),
-                itemCount: widget.options.length,
-                itemBuilder: (context, index) {
-                  final option = widget.options[index];
-                  final selected = option.id == _selectedId;
-                  return InkWell(
-                    borderRadius: BorderRadius.circular(UiRadii.lg),
-                    onTap: () => setState(() => _selectedId = option.id),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? theme.primary.withValues(alpha: 0.12)
-                            : theme.surfaceLight,
-                        borderRadius: BorderRadius.circular(UiRadii.lg),
-                        border: Border.all(
-                          color: selected ? theme.primary : theme.border,
-                        ),
-                      ),
-                      child: Center(
-                        child: UiAvatar(
-                          image: option.image,
-                          label: option.label,
-                          size: 56,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Divider(height: 1, color: theme.border),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: UiButton(
-                      label: widget.cancelLabel,
-                      variant: UiButtonVariant.secondary,
-                      size: UiButtonSize.small,
-                      fullWidth: true,
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
+            itemCount: widget.options.length,
+            itemBuilder: (context, index) {
+              final option = widget.options[index];
+              final selected = option.id == _selectedId;
+              return UiSelectableCard(
+                selected: selected,
+                onTap: () => setState(() => _selectedId = option.id),
+                padding: EdgeInsets.zero,
+                borderRadius: UiRadii.lg,
+                backgroundColor: theme.surfaceLight,
+                selectedBackgroundColor: theme.primary.withValues(alpha: 0.12),
+                borderColor: theme.border,
+                selectedBorderColor: theme.primary,
+                child: Center(
+                  child: UiAvatar(
+                    image: option.image,
+                    label: option.label,
+                    size: 56,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: UiButton(
-                      label: widget.confirmLabel,
-                      size: UiButtonSize.small,
-                      fullWidth: true,
-                      onPressed: () {
-                        UiAvatarOption? selected;
-                        for (final option in widget.options) {
-                          if (option.id == _selectedId) {
-                            selected = option;
-                            break;
-                          }
-                        }
-                        Navigator.of(context).pop(selected);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+                ),
+              );
+            },
+          ),
         ),
       ),
+      actions: [
+        SizedBox(
+          width: 480,
+          child: Row(
+            children: [
+              Expanded(
+                child: UiButton(
+                  label: widget.cancelLabel,
+                  variant: UiButtonVariant.secondary,
+                  size: UiButtonSize.small,
+                  fullWidth: true,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: UiButton(
+                  label: widget.confirmLabel,
+                  size: UiButtonSize.small,
+                  fullWidth: true,
+                  onPressed: () {
+                    UiAvatarOption? selected;
+                    for (final option in widget.options) {
+                      if (option.id == _selectedId) {
+                        selected = option;
+                        break;
+                      }
+                    }
+                    Navigator.of(context).pop(selected);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

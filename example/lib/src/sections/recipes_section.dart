@@ -66,7 +66,7 @@ Widget _buildRecipesSection(
                     style: UiPanelTagStyle.primary,
                   ),
                   UiPanelTag(icon: Icons.mood_outlined, label: strings.calm),
-                  UiStatTag(
+                  UiPanelStatBadge(
                     icon: Icons.aspect_ratio_outlined,
                     label: strings.ratio,
                     value: '16:9',
@@ -111,19 +111,19 @@ Widget _buildRecipesSection(
                 selectedValue: state._selectedFolderIndex,
                 onItemSelected: (value) => state._selectFolder(value),
                 items: [
-                  UiNavigationItem(
+                  UiSidebarItemData(
                     value: 0,
                     label: strings.allAssets,
                     icon: Icons.all_inbox_outlined,
                     countLabel: '36',
                   ),
-                  UiNavigationItem(
+                  UiSidebarItemData(
                     value: 1,
                     label: strings.storyboard,
                     leading: _SidebarColorSwatch(0x3D38F5),
                     countLabel: '12',
                   ),
-                  UiNavigationItem(
+                  UiSidebarItemData(
                     value: 2,
                     label: strings.reference,
                     leading: _SidebarColorSwatch(0x14AE5C),
@@ -185,24 +185,6 @@ Widget _buildRecipesSection(
               ),
             ),
           ],
-        ),
-      ),
-      _ExampleCard(
-        title: strings.recommendedPattern,
-        child: _UsageSnippet(
-          title: strings.codeExample,
-          code: '''
-UiCard(
-  interactive: false,
-  child: Column(
-    children: [
-      UiSectionHeader(title: 'Project'),
-      UiSurfacePanel(child: metrics),
-      UiButton(label: 'Publish', onPressed: submit),
-    ],
-  ),
-)
-''',
         ),
       ),
     ],

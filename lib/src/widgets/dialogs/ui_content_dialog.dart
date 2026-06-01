@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/ui_theme_data.dart';
+import 'ui_dialog_shell.dart';
 
 class UiContentDialog extends StatelessWidget {
   final String title;
@@ -20,26 +20,8 @@ class UiContentDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.uiTheme;
-    return AlertDialog(
-      backgroundColor: theme.surface,
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(theme.components.dialog.radius),
-        side: BorderSide(color: theme.border),
-      ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-      contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
-      actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: theme.textPrimary,
-        ),
-      ),
+    return UiDialogShell(
+      title: UiDialogTitle(title: title),
       content: SizedBox(
         width: width,
         child: Column(
@@ -47,14 +29,7 @@ class UiContentDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (description != null && description!.trim().isNotEmpty) ...[
-              Text(
-                description!,
-                style: TextStyle(
-                  color: theme.textSecondary,
-                  fontSize: 12,
-                  height: 1.4,
-                ),
-              ),
+              UiDialogDescription(text: description!),
               const SizedBox(height: 12),
             ],
             child,

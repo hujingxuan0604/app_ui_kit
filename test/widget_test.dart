@@ -163,7 +163,7 @@ void main() {
     expect(tester.takeException(), isA<AssertionError>());
   });
 
-  testWidgets('UiSelect calls onChanged when an option is selected', (
+  testWidgets('UiDropdown calls onChanged when an option is selected', (
     tester,
   ) async {
     String? selected = 'draft';
@@ -172,12 +172,12 @@ void main() {
       MaterialApp(
         theme: UiTheme.light().toThemeData(),
         home: Scaffold(
-          body: UiSelect<String>(
+          body: UiDropdown<String>(
             label: 'Status',
             value: selected,
             options: const [
-              UiSelectOption(value: 'draft', label: 'Draft'),
-              UiSelectOption(value: 'published', label: 'Published'),
+              UiDropdownOption(value: 'draft', label: 'Draft'),
+              UiDropdownOption(value: 'published', label: 'Published'),
             ],
             onChanged: (value) => selected = value,
           ),
@@ -187,24 +187,70 @@ void main() {
 
     expect(find.text('Draft'), findsOneWidget);
 
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.tap(find.text('Draft'));
     await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.check_rounded), findsNothing);
+
     await tester.tap(find.text('Published').last);
     await tester.pumpAndSettle();
 
     expect(selected, 'published');
   });
 
-  testWidgets('UiSelect requires value to match exactly one option', (
+  testWidgets('UiDropdown can search options and clear the selection', (
+    tester,
+  ) async {
+    String? selected = 'draft';
+
+    await tester.pumpWidget(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return MaterialApp(
+            theme: UiTheme.light().toThemeData(),
+            home: Scaffold(
+              body: UiDropdown<String>(
+                label: 'Status',
+                value: selected,
+                searchable: true,
+                clearable: true,
+                options: const [
+                  UiDropdownOption(value: 'draft', label: 'Draft'),
+                  UiDropdownOption(value: 'published', label: 'Published'),
+                ],
+                onChanged: (value) => setState(() => selected = value),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    await tester.tap(find.text('Draft'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'pub');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Published').last);
+    await tester.pumpAndSettle();
+
+    expect(selected, 'published');
+
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pumpAndSettle();
+
+    expect(selected, isNull);
+  });
+
+  testWidgets('UiDropdown requires value to match exactly one option', (
     tester,
   ) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: UiTheme.light().toThemeData(),
         home: Scaffold(
-          body: UiSelect<String>(
+          body: UiDropdown<String>(
             value: 'missing',
-            options: const [UiSelectOption(value: 'draft', label: 'Draft')],
+            options: const [UiDropdownOption(value: 'draft', label: 'Draft')],
             onChanged: (_) {},
           ),
         ),
@@ -212,6 +258,151 @@ void main() {
     );
 
     expect(tester.takeException(), isA<AssertionError>());
+  });
+
+  testWidgets('UiTextField keeps outside label by default', (tester) async {
+    await tester.pumpWidget(
+      const _TestApp(
+        child: UiTextField(label: 'Name', initialValue: 'StoryFlow'),
+      ),
+    );
+
+    final input = tester.widget<InputDecorator>(find.byType(InputDecorator));
+
+    expect(input.decoration.labelText, isNull);
+    expect(find.text('Name'), findsOneWidget);
+  });
+
+  testWidgets('UiTextField supports floating label position', (tester) async {
+    await tester.pumpWidget(
+      const _TestApp(
+        child: UiTextField(
+          label: 'Name',
+          labelPosition: UiTextFieldLabelPosition.floating,
+          initialValue: 'StoryFlow',
+        ),
+      ),
+    );
+
+    final input = tester.widget<InputDecorator>(find.byType(InputDecorator));
+
+    expect(input.decoration.labelText, 'Name');
+    expect(
+      input.decoration.floatingLabelBehavior,
+      FloatingLabelBehavior.always,
+    );
+  });
+
+  testWidgets('UiTextField fill layout follows parent size', (tester) async {
+    await tester.pumpWidget(
+      const _TestApp(
+        child: SizedBox(
+          width: 160,
+          height: 48,
+          child: UiTextField(
+            label: 'Name',
+            layout: UiTextFieldLayout.fill,
+            initialValue: 'StoryFlow',
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(UiTextField)), const Size(160, 48));
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).expands,
+      isFalse,
+    );
+  });
+
+  testWidgets('UiTextField fill layout expands multiline field', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const _TestApp(
+        child: SizedBox(
+          width: 160,
+          height: 80,
+          child: UiTextField(
+            layout: UiTextFieldLayout.fill,
+            maxLines: 3,
+            initialValue: 'StoryFlow',
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).expands,
+      isTrue,
+    );
+  });
+
+  testWidgets('UiSearchField reports changes and clears value', (tester) async {
+    var value = 'initial';
+    var cleared = false;
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: UiSearchField(
+          initialValue: value,
+          hintText: 'Search',
+          onChanged: (next) => value = next,
+          onClear: () => cleared = true,
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.close_rounded), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'query');
+    await tester.pump();
+
+    expect(value, 'query');
+
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pump();
+
+    expect(value, '');
+    expect(cleared, isTrue);
+  });
+
+  testWidgets('UiBottomSheet opens and closes from helper', (tester) async {
+    await tester.pumpWidget(
+      _TestApp(
+        child: Builder(
+          builder: (context) {
+            return UiButton(
+              label: 'Open sheet',
+              onPressed: () {
+                UiBottomSheet.show<void>(
+                  context: context,
+                  builder: (_) => const UiBottomSheet(
+                    title: 'Sheet title',
+                    description: 'Sheet description',
+                    child: Text('Sheet body'),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open sheet'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(UiBottomSheet), findsOneWidget);
+    expect(find.text('Sheet title'), findsOneWidget);
+    expect(find.text('Sheet body'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(UiBottomSheet), findsNothing);
   });
 
   testWidgets('UiTabs calls onChanged when an item is selected', (

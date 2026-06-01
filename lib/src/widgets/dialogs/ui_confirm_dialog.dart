@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/ui_theme_data.dart';
 import '../buttons/ui_button.dart';
+import 'ui_dialog_shell.dart';
 
 class UiConfirmDialog extends StatelessWidget {
   final String title;
@@ -27,45 +28,12 @@ class UiConfirmDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.uiTheme;
     final accent = destructive ? theme.error : theme.primary;
-    return AlertDialog(
-      backgroundColor: theme.surface,
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(theme.components.dialog.radius),
-        side: BorderSide(color: theme.border),
-      ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+    return UiDialogShell(
       titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-      contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
-      actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
-      title: Row(
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 20, color: accent),
-            const SizedBox(width: 10),
-          ],
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: theme.textPrimary,
-              ),
-            ),
-          ),
-        ],
-      ),
+      title: UiDialogTitle(title: title, icon: icon, iconColor: accent),
       content: SizedBox(
         width: theme.components.dialog.width,
-        child: Text(
-          message,
-          style: TextStyle(
-            color: theme.textSecondary,
-            fontSize: 13,
-            height: 1.5,
-          ),
-        ),
+        child: UiDialogDescription(text: message, fontSize: 13, height: 1.5),
       ),
       actions: [
         SizedBox(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/ui_theme_data.dart';
 import '../buttons/ui_button.dart';
+import 'ui_dialog_shell.dart';
 
 class UiFormDialog extends StatelessWidget {
   final String title;
@@ -30,38 +31,15 @@ class UiFormDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.uiTheme;
-    return AlertDialog(
-      backgroundColor: theme.surface,
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(theme.components.dialog.radius),
-        side: BorderSide(color: theme.border),
-      ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+    return UiDialogShell(
+      title: UiDialogTitle(title: title),
       contentPadding: contentPadding,
-      actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: theme.textPrimary,
-        ),
-      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (_description.isNotEmpty) ...[
-            Text(
-              _description,
-              style: TextStyle(
-                color: theme.textSecondary,
-                fontSize: 12,
-                height: 1.4,
-              ),
-            ),
+            UiDialogDescription(text: _description),
             const SizedBox(height: 12),
           ],
           SizedBox(width: _width(theme), child: child),

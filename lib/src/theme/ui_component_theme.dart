@@ -5,14 +5,14 @@ import '../tokens/ui_radii.dart';
 @immutable
 class UiComponentTheme {
   final UiButtonTheme button;
-  final UiInputTheme input;
+  final UiTextFieldTheme textField;
   final UiCardTheme card;
   final UiDialogTheme dialog;
   final UiTabsTheme tabs;
 
   const UiComponentTheme({
     this.button = const UiButtonTheme(),
-    this.input = const UiInputTheme(),
+    this.textField = const UiTextFieldTheme(),
     this.card = const UiCardTheme(),
     this.dialog = const UiDialogTheme(),
     this.tabs = const UiTabsTheme(),
@@ -20,14 +20,14 @@ class UiComponentTheme {
 
   UiComponentTheme copyWith({
     UiButtonTheme? button,
-    UiInputTheme? input,
+    UiTextFieldTheme? textField,
     UiCardTheme? card,
     UiDialogTheme? dialog,
     UiTabsTheme? tabs,
   }) {
     return UiComponentTheme(
       button: button ?? this.button,
-      input: input ?? this.input,
+      textField: textField ?? this.textField,
       card: card ?? this.card,
       dialog: dialog ?? this.dialog,
       tabs: tabs ?? this.tabs,
@@ -41,7 +41,7 @@ class UiComponentTheme {
   ) {
     return UiComponentTheme(
       button: UiButtonTheme.lerp(a.button, b.button, t),
-      input: UiInputTheme.lerp(a.input, b.input, t),
+      textField: UiTextFieldTheme.lerp(a.textField, b.textField, t),
       card: UiCardTheme.lerp(a.card, b.card, t),
       dialog: UiDialogTheme.lerp(a.dialog, b.dialog, t),
       tabs: UiTabsTheme.lerp(a.tabs, b.tabs, t),
@@ -52,14 +52,14 @@ class UiComponentTheme {
   bool operator ==(Object other) {
     return other is UiComponentTheme &&
         other.button == button &&
-        other.input == input &&
+        other.textField == textField &&
         other.card == card &&
         other.dialog == dialog &&
         other.tabs == tabs;
   }
 
   @override
-  int get hashCode => Object.hash(button, input, card, dialog, tabs);
+  int get hashCode => Object.hash(button, textField, card, dialog, tabs);
 }
 
 @immutable
@@ -112,20 +112,24 @@ class UiButtonTheme {
 }
 
 @immutable
-class UiInputTheme {
+class UiTextFieldTheme {
   final double radius;
   final EdgeInsetsGeometry contentPadding;
 
-  const UiInputTheme({
+  const UiTextFieldTheme({
     this.radius = UiRadii.md,
     this.contentPadding = const EdgeInsets.symmetric(
       horizontal: 14,
-      vertical: 12,
+      vertical: 8,
     ),
   });
 
-  static UiInputTheme lerp(UiInputTheme a, UiInputTheme b, double t) {
-    return UiInputTheme(
+  static UiTextFieldTheme lerp(
+    UiTextFieldTheme a,
+    UiTextFieldTheme b,
+    double t,
+  ) {
+    return UiTextFieldTheme(
       radius: _lerpDouble(a.radius, b.radius, t),
       contentPadding:
           EdgeInsetsGeometry.lerp(a.contentPadding, b.contentPadding, t) ??
@@ -135,7 +139,7 @@ class UiInputTheme {
 
   @override
   bool operator ==(Object other) {
-    return other is UiInputTheme &&
+    return other is UiTextFieldTheme &&
         other.radius == radius &&
         other.contentPadding == contentPadding;
   }

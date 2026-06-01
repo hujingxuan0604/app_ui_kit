@@ -88,12 +88,12 @@ Widget _buildPanelsSection(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        UiStatTag(
+                        UiPanelStatBadge(
                           icon: Icons.movie_outlined,
                           label: strings.shot,
                           value: '8',
                         ),
-                        const UiUnsavedIndicator(),
+                        const UiPanelUnsavedIndicator(),
                       ],
                     ),
                     const SizedBox(height: 12),

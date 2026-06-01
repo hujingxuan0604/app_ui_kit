@@ -6,6 +6,7 @@ import '../../theme/ui_theme_data.dart';
 import '../../tokens/ui_motion.dart';
 import '../../tokens/ui_radii.dart';
 import '../../tokens/ui_spacing.dart';
+import '../overlays/ui_overlay_shell.dart';
 
 enum UiMenuTrigger { tap, contextMenu }
 
@@ -190,15 +191,10 @@ class _UiMenuState extends State<UiMenu> {
   }
 
   Widget _buildOverlay(BuildContext context) {
-    return Stack(
-      key: _overlayKey,
+    return UiOverlayShell(
+      stackKey: _overlayKey,
+      onDismiss: _hideMenu,
       children: [
-        Positioned.fill(
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: _hideMenu,
-          ),
-        ),
         for (final menu in _openMenus)
           Positioned(
             left: menu.position.dx,
@@ -368,32 +364,21 @@ class _UiMenuPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.uiTheme;
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        width: width,
-        padding: const EdgeInsets.symmetric(vertical: UiSpacing.space1),
-        decoration: BoxDecoration(
-          color: theme.surfaceElevated,
-          borderRadius: BorderRadius.circular(UiRadii.md),
-          border: Border.all(color: theme.border.withValues(alpha: 0.72)),
-          boxShadow: theme.shadowMd,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final item in items)
-              item.divider
-                  ? const _UiMenuDivider()
-                  : _UiMenuRow(
-                      item: item,
-                      level: level,
-                      onHoverItem: onHoverItem,
-                      onTapItem: onTapItem,
-                    ),
-          ],
-        ),
+    return UiFloatingPanel(
+      width: width,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final item in items)
+            item.divider
+                ? const _UiMenuDivider()
+                : _UiMenuRow(
+                    item: item,
+                    level: level,
+                    onHoverItem: onHoverItem,
+                    onTapItem: onTapItem,
+                  ),
+        ],
       ),
     );
   }

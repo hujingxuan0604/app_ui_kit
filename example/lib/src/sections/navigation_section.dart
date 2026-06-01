@@ -6,19 +6,19 @@ Widget _buildNavigationSection(
   _ExampleStrings strings,
 ) {
   final items = [
-    UiNavigationItem(
+    UiSidebarItemData(
       value: 0,
       label: strings.allAssets,
       icon: Icons.all_inbox_outlined,
       countLabel: '36',
     ),
-    UiNavigationItem(
+    UiSidebarItemData(
       value: 1,
       label: strings.storyboard,
       leading: _SidebarColorSwatch(0x3D38F5),
       countLabel: '12',
     ),
-    UiNavigationItem(
+    UiSidebarItemData(
       value: 2,
       label: strings.reference,
       leading: _SidebarColorSwatch(0x14AE5C),
@@ -77,7 +77,7 @@ Widget _buildNavigationSection(
         child: const _ContextMenuCardExample(),
       ),
       _ExampleCard(
-        title: 'UiSidebar / UiNavigationItem',
+        title: 'UiSidebar / UiSidebarItemData',
         height: 360,
         child: UiSidebar<int>(
           title: strings.folders,

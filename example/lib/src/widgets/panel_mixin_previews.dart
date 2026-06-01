@@ -10,7 +10,7 @@ class _PanelMixinPreview extends StatefulWidget {
 }
 
 class _PanelMixinPreviewState extends State<_PanelMixinPreview>
-    with UiSingleEditMixin<_PanelMixinPreview> {
+    with UiPanelSingleEditMixin<_PanelMixinPreview> {
   @override
   Widget build(BuildContext context) {
     final demoState = const _DemoEditState('draft');
@@ -19,7 +19,7 @@ class _PanelMixinPreviewState extends State<_PanelMixinPreview>
       children: [
         Expanded(
           child: Text(
-            'UiSingleEditMixin / UiEditState: '
+            'UiPanelSingleEditMixin / UiPanelEditableState: '
             '${demoState.hasChangesFrom(originalState) ? widget.strings.changed : widget.strings.same}',
           ),
         ),
@@ -85,7 +85,7 @@ class _PanelListMixinPreviewState extends State<_PanelListMixinPreview>
   }
 }
 
-class _DemoEditState implements UiEditState<_DemoEditState> {
+class _DemoEditState implements UiPanelEditableState<_DemoEditState> {
   final String value;
 
   const _DemoEditState(this.value);

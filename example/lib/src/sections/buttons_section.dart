@@ -1,6 +1,10 @@
 part of '../../main.dart';
 
-Widget _buildButtonsSection(BuildContext context, _ExampleStrings strings) {
+Widget _buildButtonsSection(
+  _ExampleHomeState state,
+  BuildContext context,
+  _ExampleStrings strings,
+) {
   final theme = context.uiTheme;
   return _ExampleGrid(
     children: [
@@ -56,7 +60,7 @@ Widget _buildButtonsSection(BuildContext context, _ExampleStrings strings) {
         ),
       ),
       _ExampleCard(
-        title: 'UiIconActionButton / UiPreviewActionButton',
+        title: 'UiIconActionButton / UiPreviewIconButton',
         child: Wrap(
           spacing: 10,
           runSpacing: 10,
@@ -75,7 +79,7 @@ Widget _buildButtonsSection(BuildContext context, _ExampleStrings strings) {
             UiIconActionButton.search(
               onTap: () => UiToast.info('UiIconActionButton.search'),
             ),
-            UiPreviewActionButton(
+            UiPreviewIconButton(
               icon: Icons.zoom_in_rounded,
               tooltip: strings.zoomIn,
               onTap: () => UiToast.info(strings.zoomIn),
@@ -90,6 +94,43 @@ Widget _buildButtonsSection(BuildContext context, _ExampleStrings strings) {
         ),
       ),
       _ExampleCard(
+        title: 'UiColorPickerButton / UiColorPalette',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                UiColorPickerButton(
+                  colorValue: state._colorValue,
+                  showColorIndicator: true,
+                  onSelected: (value) => state._selectColor(value),
+                ),
+                const SizedBox(width: 12),
+                UiColorBadge(
+                  label: strings.selectedColor,
+                  color: UiColorPalette.fromRgb(state._colorValue),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: UiColorPalette.standardRgbColors.take(12).map((value) {
+                return Container(
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: UiColorPalette.fromRgb(value),
+                    shape: BoxShape.circle,
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+      _ExampleCard(
         title: 'UiMenuButton',
         child: Wrap(
           spacing: 10,
@@ -99,20 +140,20 @@ Widget _buildButtonsSection(BuildContext context, _ExampleStrings strings) {
             UiMenuButton.filter(
               items: [
                 UiMenuItem(
-                  label: '全部笔记',
+                  label: strings.allNotes,
                   icon: const Icon(Icons.menu_book_rounded),
                   selected: true,
-                  onSelected: () => UiToast.info('全部笔记'),
+                  onSelected: () => UiToast.info(strings.allNotes),
                 ),
                 UiMenuItem(
-                  label: '收藏笔记',
+                  label: strings.favoriteNotes,
                   icon: const Icon(Icons.bookmark_border_rounded),
-                  onSelected: () => UiToast.info('收藏笔记'),
+                  onSelected: () => UiToast.info(strings.favoriteNotes),
                 ),
                 UiMenuItem(
-                  label: '置顶笔记',
+                  label: strings.pinnedNotes,
                   icon: const Icon(Icons.push_pin_outlined),
-                  onSelected: () => UiToast.info('置顶笔记'),
+                  onSelected: () => UiToast.info(strings.pinnedNotes),
                 ),
               ],
             ),
@@ -121,9 +162,9 @@ Widget _buildButtonsSection(BuildContext context, _ExampleStrings strings) {
               icon: Icons.more_horiz_rounded,
               items: [
                 UiMenuItem(
-                  label: '复制',
+                  label: strings.copy,
                   icon: const Icon(Icons.content_copy_rounded),
-                  onSelected: () => UiToast.info('复制'),
+                  onSelected: () => UiToast.info(strings.copy),
                 ),
                 UiMenuItem(
                   label: strings.delete,
@@ -180,17 +221,6 @@ Widget _buildButtonsSection(BuildContext context, _ExampleStrings strings) {
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 14),
-            _UsageSnippet(
-              title: strings.codeExample,
-              code: '''
-UiButton(
-  label: 'Publish',
-  icon: const Icon(Icons.rocket_launch_outlined),
-  onPressed: submit,
-)
-''',
             ),
           ],
         ),

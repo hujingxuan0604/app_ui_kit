@@ -21,7 +21,7 @@ Widget _buildDialogsSection(BuildContext context, _ExampleStrings strings) {
                       builder: (_) => UiFormDialog(
                         title: strings.createItem,
                         description: strings.formDialogDescription,
-                        child: UiInput(
+                        child: UiTextField(
                           label: strings.title,
                           hintText: strings.enterTitle,
                         ),
@@ -42,13 +42,13 @@ Widget _buildDialogsSection(BuildContext context, _ExampleStrings strings) {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            UiInput(
+                            UiTextField(
                               label: strings.formName,
                               hintText: strings.enterTitle,
                               prefix: const Icon(Icons.title_outlined),
                             ),
                             const SizedBox(height: 12),
-                            UiInput(
+                            UiTextField(
                               label: strings.formPrompt,
                               hintText: strings.multilineInput,
                               minLines: 2,
@@ -63,19 +63,72 @@ Widget _buildDialogsSection(BuildContext context, _ExampleStrings strings) {
                 ),
               ],
             ),
-            const SizedBox(height: 14),
-            _UsageSnippet(
-              title: strings.codeExample,
-              code: '''
-showDialog(
-  context: context,
-  builder: (_) => UiFormDialog(
-    title: 'Create item',
-    child: UiInput(label: 'Title'),
-    onConfirm: submit,
-  ),
-)
-''',
+          ],
+        ),
+      ),
+      _ExampleCard(
+        title: 'UiBottomSheet',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            UiButton(
+              label: strings.bottomSheet,
+              icon: const Icon(Icons.vertical_align_bottom_rounded),
+              variant: UiButtonVariant.secondary,
+              onPressed: () {
+                UiBottomSheet.show<void>(
+                  context: context,
+                  builder: (sheetContext) => UiBottomSheet(
+                    title: strings.quickSettings,
+                    description: strings.bottomSheetDescription,
+                    actions: [
+                      UiButton(
+                        label: strings.close,
+                        variant: UiButtonVariant.secondary,
+                        size: UiButtonSize.small,
+                        onPressed: () => Navigator.of(sheetContext).pop(),
+                      ),
+                      UiButton(
+                        label: strings.save,
+                        size: UiButtonSize.small,
+                        onPressed: () => Navigator.of(sheetContext).pop(),
+                      ),
+                    ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        UiInfoRow(
+                          label: strings.sheetOptionOne,
+                          value: strings.activeProject,
+                          icon: const Icon(Icons.folder_outlined),
+                        ),
+                        const SizedBox(height: 12),
+                        UiInfoRow(
+                          label: strings.sheetOptionTwo,
+                          value: '16:9',
+                          icon: const Icon(Icons.aspect_ratio_outlined),
+                        ),
+                        const SizedBox(height: 12),
+                        UiDropdown<String>(
+                          label: strings.status,
+                          value: 'draft',
+                          options: [
+                            UiDropdownOption(
+                              value: 'draft',
+                              label: strings.draft,
+                            ),
+                            UiDropdownOption(
+                              value: 'published',
+                              label: strings.publishedStatus,
+                            ),
+                          ],
+                          onChanged: (_) {},
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),

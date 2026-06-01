@@ -12,8 +12,8 @@ class _ExampleStrings {
   String get appTitle =>
       isZh ? 'app_ui_kit 组件目录' : 'app_ui_kit component catalog';
   String get appSubtitle => isZh
-      ? '分类展示组件库中的 tokens、主题、基础控件、业务面板和弹窗。'
-      : 'Browse tokens, themes, controls, business panels, and dialogs by category.';
+      ? '按组件模块展示 tokens、主题、基础组件和复合组件。'
+      : 'Browse tokens, themes, base components, and composite components by module.';
   String get navSubtitle => isZh ? '组件目录' : 'Component catalog';
   String get navSummary => isZh ? '快速切换组件分类' : 'Fast section switching';
   String categoryCount(int count) => isZh ? '$count 个分类' : '$count categories';
@@ -42,15 +42,17 @@ class _ExampleStrings {
       case 'navigation':
         return isZh ? '导航' : 'Navigation';
       case 'panels':
-        return isZh ? '业务面板' : 'Panels';
+        return isZh ? '面板' : 'Panels';
       case 'dialogs':
         return isZh ? '弹窗' : 'Dialogs';
       case 'avatar':
         return isZh ? '头像' : 'Avatar';
       case 'feedback':
         return isZh ? '反馈' : 'Feedback';
+      case 'composite':
+        return isZh ? '复合组件' : 'Composite';
       case 'recipes':
-        return isZh ? '组合场景' : 'Recipes';
+        return isZh ? '组合示例' : 'Recipes';
       default:
         return id;
     }
@@ -61,16 +63,21 @@ class _ExampleStrings {
       : sectionLabel(id);
 
   String get primary => isZh ? '主按钮' : 'Primary';
-  String get secondary => isZh ? '次按钮' : 'Secondary';
-  String get ghost => isZh ? '幽灵按钮' : 'Ghost';
-  String get danger => isZh ? '危险按钮' : 'Danger';
+  String get secondary => isZh ? '次要按钮' : 'Secondary';
+  String get ghost => isZh ? '透明按钮' : 'Ghost';
+  String get danger => isZh ? '危险操作' : 'Danger';
   String get loading => isZh ? '加载中' : 'Loading';
   String get disabled => isZh ? '禁用' : 'Disabled';
-  String get fullWidth => isZh ? '通栏按钮' : 'Full width';
+  String get fullWidth => isZh ? '全宽按钮' : 'Full width';
   String get search => isZh ? '搜索' : 'Search';
+  String get clear => isZh ? '清空' : 'Clear';
   String get selected => isZh ? '已选中' : 'Selected';
   String get zoomIn => isZh ? '放大' : 'Zoom in';
   String get delete => isZh ? '删除' : 'Delete';
+  String get copy => isZh ? '复制' : 'Copy';
+  String get allNotes => isZh ? '全部笔记' : 'All notes';
+  String get favoriteNotes => isZh ? '收藏笔记' : 'Favorite notes';
+  String get pinnedNotes => isZh ? '置顶笔记' : 'Pinned notes';
 
   String toast(String value) => isZh ? '$value 已触发' : '$value triggered';
   String submitted(String value) => isZh ? '已提交：$value' : 'Submitted: $value';
@@ -78,7 +85,7 @@ class _ExampleStrings {
   String get name => isZh ? '名称' : 'Name';
   String get enterName => isZh ? '输入名称' : 'Enter a name';
   String get password => isZh ? '密码' : 'Password';
-  String get toggleVisibility => isZh ? '切换可见性' : 'Toggle visibility';
+  String get toggleVisibility => isZh ? '显示或隐藏密码' : 'Toggle visibility';
   String get description => isZh ? '描述' : 'Description';
   String get multilineInput => isZh ? '多行输入' : 'Multi-line input';
   String get error => isZh ? '错误' : 'Error';
@@ -86,11 +93,27 @@ class _ExampleStrings {
   String get validValueHint => isZh ? '请输入有效内容' : 'Please enter a valid value';
   String get selectedColor => isZh ? '已选颜色' : 'Selected color';
   String get status => isZh ? '状态' : 'Status';
+  String get compact => isZh ? '紧凑' : 'Compact';
+  String get floatingLabel => isZh ? '浮动标签' : 'Floating label';
+  String get fillParent => isZh ? '填充父级尺寸' : 'Fill parent';
   String get chooseStatus => isZh ? '选择状态' : 'Choose status';
   String get draftStatus => isZh ? '草稿' : 'Draft';
   String get publishedStatus => isZh ? '已发布' : 'Published';
   String get archivedStatus => isZh ? '已归档' : 'Archived';
   String get selectRequired => isZh ? '请选择一个状态' : 'Please choose a status';
+  String get assetType => isZh ? '素材类型' : 'Asset type';
+  String get chooseAssetType => isZh ? '选择素材类型' : 'Choose asset type';
+  String get searchAssetType => isZh ? '搜索素材类型' : 'Search types';
+  String get noAssetTypes => isZh ? '没有匹配的素材类型' : 'No matching types';
+  String get voiceover => isZh ? '旁白' : 'Voiceover';
+  String get voiceoverDescription =>
+      isZh ? '适合口播、叙事和解释型片段' : 'Narration, explainers, and voice-led scenes';
+  String get soundtrack => isZh ? '配乐' : 'Soundtrack';
+  String get soundtrackDescription =>
+      isZh ? '为镜头组选择情绪和节奏' : 'Mood and rhythm for a sequence';
+  String get broll => isZh ? '补充镜头' : 'B-roll';
+  String get brollDescription =>
+      isZh ? '用于覆盖转场、细节或环境镜头' : 'Cutaways, details, and ambient footage';
 
   String get defaultLabel => isZh ? '默认' : 'Default';
   String get customStyle => isZh ? '自定义样式' : 'Custom style';
@@ -199,6 +222,13 @@ class _ExampleStrings {
   String get formDialogDescription => isZh
       ? 'UiFormDialog 用于承载自定义表单内容。'
       : 'UiFormDialog wraps custom form content.';
+  String get bottomSheet => isZh ? '底部弹窗' : 'Bottom sheet';
+  String get bottomSheetDescription => isZh
+      ? 'UiBottomSheet 适合移动端操作确认、快速编辑和轻量选择。'
+      : 'UiBottomSheet is useful for quick edits, choices, and mobile actions.';
+  String get quickSettings => isZh ? '快速设置' : 'Quick settings';
+  String get sheetOptionOne => isZh ? '当前项目' : 'Current project';
+  String get sheetOptionTwo => isZh ? '输出比例' : 'Output ratio';
   String get enterTitle => isZh ? '输入标题' : 'Enter title';
   String get editTag => isZh ? '编辑标签' : 'Edit tag';
   String get save => isZh ? '保存' : 'Save';
@@ -219,28 +249,25 @@ class _ExampleStrings {
   String get checkInput => isZh ? '请检查输入内容' : 'Please check the input';
   String get somethingWentWrong => isZh ? '出现了一些问题' : 'Something went wrong';
 
-  String get basicUsage => isZh ? '基础用法' : 'Basic usage';
-  String get actionFooter => isZh ? '操作区' : 'Action footer';
+  String get actionFooter => isZh ? '底部操作区' : 'Action footer';
   String get compactToolbar => isZh ? '紧凑工具栏' : 'Compact toolbar';
-  String get formExample => isZh ? '项目表单示例' : 'Project form example';
+  String get formExample => isZh ? '项目表单' : 'Project form example';
   String get formName => isZh ? '项目名称' : 'Project name';
   String get formStyle => isZh ? '视觉风格' : 'Visual style';
   String get formPrompt => isZh ? '提示词' : 'Prompt';
   String get publish => isZh ? '发布' : 'Publish';
   String get draft => isZh ? '草稿' : 'Draft';
   String get cardVariants => isZh ? '卡片变体' : 'Card variants';
-  String get dashboardRecipe => isZh ? '项目仪表盘' : 'Project dashboard';
+  String get dashboardRecipe => isZh ? '项目概览' : 'Project dashboard';
   String get assetRecipe => isZh ? '素材管理布局' : 'Asset management layout';
-  String get dialogRecipe => isZh ? '完整弹窗表单' : 'Complete dialog form';
-  String get recommendedPattern => isZh ? '推荐组合' : 'Recommended pattern';
+  String get dialogRecipe => isZh ? '弹窗表单' : 'Complete dialog form';
+  String get recommendedPattern => isZh ? '推荐搭配' : 'Recommended pattern';
   String get uploadAssets => isZh ? '导入素材' : 'Import assets';
   String get renderQueue => isZh ? '渲染队列' : 'Render queue';
   String get activeProject => isZh ? '短片预告片' : 'Short trailer';
   String get ready => isZh ? '就绪' : 'Ready';
   String get generating => isZh ? '生成中' : 'Generating';
   String get reviewNeeded => isZh ? '待检查' : 'Review needed';
-  String get codeExample => isZh ? '代码示例' : 'Code example';
-  String get copyPatternHint => isZh
-      ? '下方片段展示最常见的组件组合方式。'
-      : 'The snippet below shows a common composition pattern.';
+  String get copyPatternHint =>
+      isZh ? '常见的底部操作区组合。' : 'A common action footer composition.';
 }

@@ -23,6 +23,7 @@ part 'src/sections/dialogs_section.dart';
 part 'src/sections/avatar_section.dart';
 part 'src/sections/feedback_section.dart';
 part 'src/sections/recipes_section.dart';
+part 'src/sections/composite_section.dart';
 part 'src/example_app.dart';
 part 'src/example_home.dart';
 

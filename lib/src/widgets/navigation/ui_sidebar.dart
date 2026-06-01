@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/ui_theme_data.dart';
-import '../../tokens/ui_radii.dart';
 import '../display/ui_sidebar_item.dart';
+import '../inputs/ui_text_field.dart';
 
-class UiNavigationItem<T> {
+class UiSidebarItemData<T> {
   final T value;
   final String label;
   final Widget? leading;
   final IconData? icon;
   final String? countLabel;
 
-  const UiNavigationItem({
+  const UiSidebarItemData({
     required this.value,
     required this.label,
     this.leading,
@@ -23,7 +23,7 @@ class UiNavigationItem<T> {
 class UiSidebar<T> extends StatelessWidget {
   final String? title;
   final List<Widget> headerActions;
-  final List<UiNavigationItem<T>> items;
+  final List<UiSidebarItemData<T>> items;
   final T? selectedValue;
   final ValueChanged<T> onItemSelected;
   final String? searchQuery;
@@ -159,27 +159,12 @@ class _UiSidebarSearchFieldState extends State<_UiSidebarSearchField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.uiTheme;
-    return Container(
-      height: 36,
-      decoration: BoxDecoration(
-        color: theme.surfaceLight,
-        borderRadius: BorderRadius.circular(UiRadii.lg),
-        border: Border.all(color: theme.border),
-      ),
-      child: TextField(
-        controller: _controller,
-        onChanged: widget.onChanged,
-        style: TextStyle(fontSize: 13, color: theme.textPrimary),
-        decoration: InputDecoration(
-          hintText: widget.hintText,
-          hintStyle: TextStyle(fontSize: 13, color: theme.textTertiary),
-          prefixIcon: Icon(Icons.search, size: 18, color: theme.textTertiary),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 8),
-          isDense: true,
-        ),
-      ),
+    return UiTextField(
+      controller: _controller,
+      hintText: widget.hintText,
+      prefix: const Icon(Icons.search),
+      size: UiTextFieldSize.compact,
+      onChanged: widget.onChanged,
     );
   }
 }

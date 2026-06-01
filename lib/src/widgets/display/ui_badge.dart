@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../theme/ui_theme_data.dart';
 import '../../tokens/ui_radii.dart';
 import '../../tokens/ui_spacing.dart';
+import '../buttons/ui_icon_action_button.dart';
 
 const double uiBadgeRadius = UiRadii.sm;
 
@@ -135,25 +136,29 @@ class UiColorBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(uiBadgeRadius),
-      child: Container(
+    final badge = UiBadge(
+      label: label,
+      color: color,
+      style: UiBadgeStyle(
         padding: padding,
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(uiBadgeRadius),
           border: Border.all(color: color.withValues(alpha: 0.24)),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        ),
+        foregroundColor: color,
+        textStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
       ),
+    );
+
+    if (onTap == null) {
+      return badge;
+    }
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(uiBadgeRadius),
+      child: badge,
     );
   }
 }
@@ -214,26 +219,15 @@ class UiSelectionToggleBadge extends StatelessWidget {
         ? selectedBorderColor ?? theme.primary
         : unselectedBorderColor ?? Colors.white.withValues(alpha: 0.8);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(uiBadgeRadius),
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: fillColor,
-            borderRadius: BorderRadius.circular(uiBadgeRadius),
-            border: Border.all(color: borderColor),
-          ),
-          child: Icon(
-            selected ? selectedIcon : unselectedIcon,
-            size: iconSize,
-            color: iconColor,
-          ),
-        ),
-      ),
+    return UiIconActionButton(
+      icon: selected ? selectedIcon : unselectedIcon,
+      onTap: onTap,
+      size: size,
+      iconSize: iconSize,
+      radius: uiBadgeRadius,
+      color: iconColor,
+      backgroundColor: fillColor,
+      borderColor: borderColor,
     );
   }
 }

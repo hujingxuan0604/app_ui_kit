@@ -30,11 +30,9 @@ class _ExampleHomeState extends State<ExampleHome> {
     _CatalogSection('display', Icons.view_agenda_outlined),
     _CatalogSection('surfaces', Icons.layers_outlined),
     _CatalogSection('navigation', Icons.alt_route_outlined),
-    _CatalogSection('panels', Icons.dashboard_customize_outlined),
-    _CatalogSection('dialogs', Icons.web_asset_outlined),
     _CatalogSection('avatar', Icons.account_circle_outlined),
     _CatalogSection('feedback', Icons.notifications_outlined),
-    _CatalogSection('recipes', Icons.auto_awesome_mosaic_outlined),
+    _CatalogSection('composite', Icons.auto_awesome_mosaic_outlined),
   ];
 
   _ExampleLanguage _language = _ExampleLanguage.zh;
@@ -44,8 +42,9 @@ class _ExampleHomeState extends State<ExampleHome> {
   bool _panelCardExpanded = true;
   bool _panelCardSelected = true;
   int _colorValue = UiColorPalette.defaultRgb;
-  String _inputSelectValue = 'draft';
-  String? _inputRequiredSelectValue;
+  String _inputDropdownValue = 'draft';
+  String? _inputRequiredDropdownValue;
+  String? _inputAssetDropdownValue = 'voiceover';
   String _panelDropdownValue = '16:9';
   String _selectedAvatarId = 'a';
 
@@ -185,7 +184,7 @@ class _ExampleHomeState extends State<ExampleHome> {
         return _CatalogCategory(
           id: 'buttons',
           title: strings.categoryTitle('buttons'),
-          children: [_buildButtonsSection(context, strings)],
+          children: [_buildButtonsSection(this, context, strings)],
         );
       case 'inputs':
         return _CatalogCategory(
@@ -211,18 +210,6 @@ class _ExampleHomeState extends State<ExampleHome> {
           title: strings.categoryTitle('navigation'),
           children: [_buildNavigationSection(this, context, strings)],
         );
-      case 'panels':
-        return _CatalogCategory(
-          id: 'panels',
-          title: strings.categoryTitle('panels'),
-          children: [_buildPanelsSection(this, context, strings)],
-        );
-      case 'dialogs':
-        return _CatalogCategory(
-          id: 'dialogs',
-          title: strings.categoryTitle('dialogs'),
-          children: [_buildDialogsSection(context, strings)],
-        );
       case 'avatar':
         return _CatalogCategory(
           id: 'avatar',
@@ -235,12 +222,8 @@ class _ExampleHomeState extends State<ExampleHome> {
           title: strings.categoryTitle('feedback'),
           children: [_buildFeedbackSection(context, strings)],
         );
-      case 'recipes':
-        return _CatalogCategory(
-          id: 'recipes',
-          title: strings.categoryTitle('recipes'),
-          children: [_buildRecipesSection(this, context, strings)],
-        );
+      case 'composite':
+        return _buildCompositeSection(this, context, strings);
       case 'tokens':
       default:
         return _CatalogCategory(
@@ -269,12 +252,16 @@ class _ExampleHomeState extends State<ExampleHome> {
     setState(() => _colorValue = value);
   }
 
-  void _selectInputValue(String value) {
-    setState(() => _inputSelectValue = value);
+  void _selectDropdownValue(String value) {
+    setState(() => _inputDropdownValue = value);
   }
 
-  void _selectRequiredInputValue(String value) {
-    setState(() => _inputRequiredSelectValue = value);
+  void _selectRequiredDropdownValue(String value) {
+    setState(() => _inputRequiredDropdownValue = value);
+  }
+
+  void _selectAssetDropdownValue(String? value) {
+    setState(() => _inputAssetDropdownValue = value);
   }
 
   void _toggleSelectionToggle() {
