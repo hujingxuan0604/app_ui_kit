@@ -140,6 +140,29 @@ Widget _buildInputsSection(
               },
             ),
             const SizedBox(height: 14),
+            UiDropdown<String>.multiple(
+              label: '多选状态',
+              hintText: strings.chooseStatus,
+              value: state._inputMultiDropdownValues,
+              clearable: true,
+              prefix: const Icon(Icons.checklist_rounded),
+              options: [
+                UiDropdownOption(value: 'draft', label: strings.draftStatus),
+                UiDropdownOption(
+                  value: 'published',
+                  label: strings.publishedStatus,
+                ),
+                UiDropdownOption(
+                  value: 'archived',
+                  label: strings.archivedStatus,
+                ),
+              ],
+              onChanged: (values) {
+                state._selectMultiDropdownValues(values);
+                UiToast.info(strings.changed);
+              },
+            ),
+            const SizedBox(height: 14),
             UiDropdown<String>(
               label: strings.error,
               hintText: strings.chooseStatus,

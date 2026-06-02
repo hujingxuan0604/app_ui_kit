@@ -23,6 +23,12 @@ typedef UiDropdownOptionBuilder<T> =
 typedef UiDropdownSelectedBuilder<T> =
     Widget Function(BuildContext context, UiDropdownOption<T> option);
 
+typedef UiDropdownMultiSelectedBuilder<T> =
+    Widget Function(
+      BuildContext context,
+      List<UiDropdownOption<T>> selectedOptions,
+    );
+
 class UiDropdownOption<T> {
   final T value;
   final String label;
@@ -46,13 +52,16 @@ class UiDropdownOption<T> {
 class UiDropdown<T> extends StatefulWidget {
   final String? label;
   final String? hintText;
-  final T? value;
+  final Object? _rawValue;
   final List<UiDropdownOption<T>> options;
-  final ValueChanged<T?>? onChanged;
+  final ValueChanged<T?>? _singleOnChanged;
+  final ValueChanged<List<T>>? _multiOnChanged;
   final FormFieldValidator<T>? validator;
+  final FormFieldValidator<List<T>>? multiValidator;
   final String? errorText;
   final bool enabled;
   final bool clearable;
+  final bool multiple;
   final bool searchable;
   final Widget? prefix;
   final Widget? suffix;
@@ -63,15 +72,16 @@ class UiDropdown<T> extends StatefulWidget {
   final bool Function(UiDropdownOption<T> option, String query)? filterOption;
   final UiDropdownOptionBuilder<T>? optionBuilder;
   final UiDropdownSelectedBuilder<T>? selectedBuilder;
+  final UiDropdownMultiSelectedBuilder<T>? multiSelectedBuilder;
   final UiDropdownSize size;
 
   const UiDropdown({
     super.key,
     this.label,
     this.hintText,
-    this.value,
+    T? value,
     required this.options,
-    this.onChanged,
+    ValueChanged<T?>? onChanged,
     this.validator,
     this.errorText,
     this.enabled = true,
@@ -87,7 +97,45 @@ class UiDropdown<T> extends StatefulWidget {
     this.optionBuilder,
     this.selectedBuilder,
     this.size = UiDropdownSize.medium,
-  });
+  }) : _rawValue = value,
+       _singleOnChanged = onChanged,
+       _multiOnChanged = null,
+       multiValidator = null,
+       multiple = false,
+       multiSelectedBuilder = null;
+
+  const UiDropdown.multiple({
+    super.key,
+    this.label,
+    this.hintText,
+    List<T> value = const [],
+    required this.options,
+    ValueChanged<List<T>>? onChanged,
+    FormFieldValidator<List<T>>? validator,
+    this.errorText,
+    this.enabled = true,
+    this.clearable = false,
+    this.searchable = false,
+    this.prefix,
+    this.suffix,
+    this.menuWidth,
+    this.menuMaxHeight,
+    this.searchHintText = 'Search',
+    this.emptyText = 'No options',
+    this.filterOption,
+    this.optionBuilder,
+    UiDropdownMultiSelectedBuilder<T>? selectedBuilder,
+    this.size = UiDropdownSize.medium,
+  }) : _rawValue = value,
+       _singleOnChanged = null,
+       _multiOnChanged = onChanged,
+       validator = null,
+       multiValidator = validator,
+       multiple = true,
+       selectedBuilder = null,
+       multiSelectedBuilder = selectedBuilder;
+
+  Object? get value => _rawValue;
 
   @override
   State<UiDropdown<T>> createState() => _UiDropdownState<T>();
@@ -99,8 +147,8 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
 
   final LayerLink _layerLink = LayerLink();
   final GlobalKey _fieldKey = GlobalKey();
-  final GlobalKey<FormFieldState<T>> _formFieldKey =
-      GlobalKey<FormFieldState<T>>();
+  final GlobalKey<FormFieldState<Object?>> _formFieldKey =
+      GlobalKey<FormFieldState<Object?>>();
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _searchController = TextEditingController();
 
@@ -121,13 +169,17 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
   void didUpdateWidget(UiDropdown<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.value != widget.value) {
-      _formFieldKey.currentState?.didChange(widget.value);
+      _formFieldKey.currentState?.didChange(_fieldValue);
       _syncHighlightedIndex();
     }
     if (!widget.enabled && oldWidget.enabled) {
       _hideMenu();
     } else if (_open) {
-      _overlayEntry?.markNeedsBuild();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _open) {
+          _overlayEntry?.markNeedsBuild();
+        }
+      });
     }
   }
 
@@ -144,29 +196,55 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
   @override
   Widget build(BuildContext context) {
     assert(
-      widget.value == null ||
+      widget.multiple ||
+          widget.value == null ||
           widget.options
                   .where((option) => option.value == widget.value)
                   .length ==
               1,
       'UiDropdown value must match exactly one option.',
     );
+    assert(
+      !widget.multiple ||
+          _configuredValues.every(
+            (value) =>
+                widget.options
+                    .where((option) => option.value == value)
+                    .length ==
+                1,
+          ),
+      'UiDropdown values must each match exactly one option.',
+    );
 
-    return FormField<T>(
+    return FormField<Object?>(
       key: _formFieldKey,
-      initialValue: widget.value,
+      initialValue: _fieldValue,
       enabled: widget.enabled,
-      validator: widget.validator,
+      validator: (value) {
+        if (widget.multiple) {
+          return widget.multiValidator?.call(_asValues(value));
+        }
+        return widget.validator?.call(value as T?);
+      },
       builder: (field) => _buildField(context, field),
     );
   }
 
-  Widget _buildField(BuildContext context, FormFieldState<T> field) {
+  Object? get _fieldValue => widget.multiple ? _configuredValues : widget.value;
+
+  List<T> get _configuredValues => _asValues(widget.value);
+
+  Widget _buildField(BuildContext context, FormFieldState<Object?> field) {
     final theme = context.uiTheme;
     final errorText = widget.errorText ?? field.errorText;
     final hasError = errorText != null && errorText.isNotEmpty;
     final active = _focused || _open;
-    final selectedOption = _optionForValue(field.value);
+    final selectedOptions = widget.multiple
+        ? _optionsForValues(_asValues(field.value))
+        : <UiDropdownOption<T>>[];
+    final selectedOption = widget.multiple
+        ? null
+        : _optionForValue(field.value as T?);
     final metrics = _UiDropdownMetrics.forSize(widget.size);
 
     return Column(
@@ -239,19 +317,26 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
                     Expanded(
                       child: _UiDropdownValue<T>(
                         option: selectedOption,
+                        selectedOptions: selectedOptions,
+                        multiple: widget.multiple,
                         hintText: widget.hintText,
                         selectedBuilder: widget.selectedBuilder,
+                        multiSelectedBuilder: widget.multiSelectedBuilder,
                         metrics: metrics,
                       ),
                     ),
                     if (widget.clearable &&
                         widget.enabled &&
-                        selectedOption != null) ...[
+                        (widget.multiple
+                            ? selectedOptions.isNotEmpty
+                            : selectedOption != null)) ...[
                       const SizedBox(width: UiSpacing.space2),
                       _DropdownIconAction(
                         icon: Icons.close_rounded,
                         color: theme.textTertiary,
-                        onTap: () => _selectValue(null, field),
+                        onTap: () => widget.multiple
+                            ? _selectValues(<T>[], field)
+                            : _selectValue(null, field),
                       ),
                     ],
                     if (widget.suffix != null) ...[
@@ -291,7 +376,10 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
     );
   }
 
-  KeyEventResult _handleKeyEvent(KeyEvent event, FormFieldState<T> field) {
+  KeyEventResult _handleKeyEvent(
+    KeyEvent event,
+    FormFieldState<Object?> field,
+  ) {
     if (event is! KeyDownEvent || !widget.enabled) {
       return KeyEventResult.ignored;
     }
@@ -325,7 +413,11 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
         if (_highlightedIndex >= 0 && _highlightedIndex < options.length) {
           final option = options[_highlightedIndex];
           if (option.enabled) {
-            _selectValue(option.value, field);
+            if (widget.multiple) {
+              _toggleValue(option.value, field);
+            } else {
+              _selectValue(option.value, field);
+            }
           }
         }
       }
@@ -347,7 +439,7 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
     _overlayEntry?.markNeedsBuild();
   }
 
-  void _toggleMenu(FormFieldState<T> field) {
+  void _toggleMenu(FormFieldState<Object?> field) {
     if (_open) {
       _hideMenu();
     } else {
@@ -355,7 +447,7 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
     }
   }
 
-  void _showMenu(FormFieldState<T> field) {
+  void _showMenu(FormFieldState<Object?> field) {
     if (!widget.enabled) {
       return;
     }
@@ -367,7 +459,7 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
     setState(() => _open = true);
   }
 
-  Widget _buildOverlay(FormFieldState<T> field) {
+  Widget _buildOverlay(FormFieldState<Object?> field) {
     final layout = _menuLayout();
     final visibleOptions = _visibleOptions;
 
@@ -383,25 +475,46 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
             maxHeight: layout.maxHeight,
             size: widget.size,
             options: visibleOptions,
-            selectedValue: field.value,
+            selectedValue: widget.multiple ? null : field.value as T?,
+            selectedValues: widget.multiple ? _asValues(field.value) : <T>[],
             highlightedIndex: _highlightedIndex,
+            multiple: widget.multiple,
             searchable: widget.searchable,
             searchController: _searchController,
             searchHintText: widget.searchHintText,
             emptyText: widget.emptyText,
             optionBuilder: widget.optionBuilder,
             onHover: (index) => _setHighlightedIndex(index),
-            onSelected: (option) => _selectValue(option.value, field),
+            onSelected: (option) => widget.multiple
+                ? _toggleValue(option.value, field)
+                : _selectValue(option.value, field),
           ),
         ),
       ],
     );
   }
 
-  void _selectValue(T? value, FormFieldState<T> field) {
+  void _selectValue(T? value, FormFieldState<Object?> field) {
     field.didChange(value);
-    widget.onChanged?.call(value);
+    widget._singleOnChanged?.call(value);
     _hideMenu();
+  }
+
+  void _toggleValue(T value, FormFieldState<Object?> field) {
+    final values = List<T>.of(_asValues(field.value));
+    if (values.contains(value)) {
+      values.remove(value);
+    } else {
+      values.add(value);
+    }
+    _selectValues(values, field);
+  }
+
+  void _selectValues(List<T> values, FormFieldState<Object?> field) {
+    final nextValues = List<T>.unmodifiable(values);
+    field.didChange(nextValues);
+    widget._multiOnChanged?.call(nextValues);
+    _overlayEntry?.markNeedsBuild();
   }
 
   void _moveHighlight(int delta) {
@@ -426,9 +539,18 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
 
   void _syncHighlightedIndex() {
     final options = _visibleOptions;
-    final selectedValue = _formFieldKey.currentState?.value ?? widget.value;
+    final selectedValue = widget.multiple
+        ? null
+        : (_formFieldKey.currentState?.value as T? ?? widget.value as T?);
+    final selectedValues = widget.multiple
+        ? _asValues(_formFieldKey.currentState?.value ?? _configuredValues)
+        : <T>[];
     final selectedIndex = options.indexWhere(
-      (option) => option.value == selectedValue && option.enabled,
+      (option) =>
+          (widget.multiple
+              ? selectedValues.contains(option.value)
+              : option.value == selectedValue) &&
+          option.enabled,
     );
     if (selectedIndex >= 0) {
       _highlightedIndex = selectedIndex;
@@ -531,6 +653,20 @@ class _UiDropdownState<T> extends State<UiDropdown<T>> {
     }
     return null;
   }
+
+  List<T> _asValues(Object? value) {
+    if (value is List<T>) {
+      return value;
+    }
+    return <T>[];
+  }
+
+  List<UiDropdownOption<T>> _optionsForValues(List<T> values) {
+    return [
+      for (final value in values)
+        if (_optionForValue(value) case final option?) option,
+    ];
+  }
 }
 
 class _UiDropdownMetrics {
@@ -608,28 +744,45 @@ class _UiDropdownMenuLayout {
 
 class _UiDropdownValue<T> extends StatelessWidget {
   final UiDropdownOption<T>? option;
+  final List<UiDropdownOption<T>> selectedOptions;
+  final bool multiple;
   final String? hintText;
   final UiDropdownSelectedBuilder<T>? selectedBuilder;
+  final UiDropdownMultiSelectedBuilder<T>? multiSelectedBuilder;
   final _UiDropdownMetrics metrics;
 
   const _UiDropdownValue({
     required this.option,
+    required this.selectedOptions,
+    required this.multiple,
     required this.hintText,
     required this.selectedBuilder,
+    required this.multiSelectedBuilder,
     required this.metrics,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = context.uiTheme;
-    final option = this.option;
-    if (option == null) {
+    if (multiple) {
+      if (selectedOptions.isEmpty) {
+        return _hint(theme);
+      }
+      final builder = multiSelectedBuilder;
+      if (builder != null) {
+        return builder(context, selectedOptions);
+      }
       return Text(
-        hintText ?? '',
+        selectedOptions.map((option) => option.label).join(', '),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(color: theme.textTertiary, fontSize: metrics.fontSize),
+        style: TextStyle(color: theme.textPrimary, fontSize: metrics.fontSize),
       );
+    }
+
+    final option = this.option;
+    if (option == null) {
+      return _hint(theme);
     }
     final builder = selectedBuilder;
     if (builder != null) {
@@ -658,6 +811,15 @@ class _UiDropdownValue<T> extends StatelessWidget {
       ],
     );
   }
+
+  Widget _hint(UiThemeData theme) {
+    return Text(
+      hintText ?? '',
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(color: theme.textTertiary, fontSize: metrics.fontSize),
+    );
+  }
 }
 
 class _UiDropdownMenu<T> extends StatelessWidget {
@@ -666,7 +828,9 @@ class _UiDropdownMenu<T> extends StatelessWidget {
   final UiDropdownSize size;
   final List<UiDropdownOption<T>> options;
   final T? selectedValue;
+  final List<T> selectedValues;
   final int highlightedIndex;
+  final bool multiple;
   final bool searchable;
   final TextEditingController searchController;
   final String searchHintText;
@@ -681,7 +845,9 @@ class _UiDropdownMenu<T> extends StatelessWidget {
     required this.size,
     required this.options,
     required this.selectedValue,
+    required this.selectedValues,
     required this.highlightedIndex,
+    required this.multiple,
     required this.searchable,
     required this.searchController,
     required this.searchHintText,
@@ -719,8 +885,11 @@ class _UiDropdownMenu<T> extends StatelessWidget {
                       final option = options[index];
                       return _UiDropdownOptionRow<T>(
                         option: option,
-                        selected: option.value == selectedValue,
+                        selected: multiple
+                            ? selectedValues.contains(option.value)
+                            : option.value == selectedValue,
                         highlighted: index == highlightedIndex,
+                        multiple: multiple,
                         metrics: metrics,
                         optionBuilder: optionBuilder,
                         onHover: () => onHover(index),
@@ -771,6 +940,7 @@ class _UiDropdownOptionRow<T> extends StatefulWidget {
   final UiDropdownOption<T> option;
   final bool selected;
   final bool highlighted;
+  final bool multiple;
   final _UiDropdownMetrics metrics;
   final UiDropdownOptionBuilder<T>? optionBuilder;
   final VoidCallback onHover;
@@ -780,6 +950,7 @@ class _UiDropdownOptionRow<T> extends StatefulWidget {
     required this.option,
     required this.selected,
     required this.highlighted,
+    required this.multiple,
     required this.metrics,
     required this.optionBuilder,
     required this.onHover,
@@ -855,6 +1026,10 @@ class _UiDropdownOptionRowState<T> extends State<_UiDropdownOptionRow<T>> {
     }
     return Row(
       children: [
+        if (widget.multiple) ...[
+          _UiDropdownSelectionMark(selected: selected, enabled: option.enabled),
+          const SizedBox(width: UiSpacing.space2),
+        ],
         if (option.icon != null) ...[
           SizedBox(
             width: 20,
@@ -900,6 +1075,38 @@ class _UiDropdownOptionRowState<T> extends State<_UiDropdownOptionRow<T>> {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _UiDropdownSelectionMark extends StatelessWidget {
+  final bool selected;
+  final bool enabled;
+
+  const _UiDropdownSelectionMark({
+    required this.selected,
+    required this.enabled,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.uiTheme;
+    final color = enabled ? theme.primary : theme.textTertiary;
+    return AnimatedContainer(
+      duration: UiMotion.fast,
+      curve: UiMotion.standard,
+      width: 16,
+      height: 16,
+      decoration: BoxDecoration(
+        color: selected ? color : Colors.transparent,
+        borderRadius: BorderRadius.circular(UiRadii.sm),
+        border: Border.all(
+          color: selected ? color : theme.borderHover.withValues(alpha: 0.72),
+        ),
+      ),
+      child: selected
+          ? const Icon(Icons.check_rounded, size: 12, color: Colors.white)
+          : null,
     );
   }
 }

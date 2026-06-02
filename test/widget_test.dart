@@ -283,6 +283,59 @@ void main() {
     expect(selected, isNull);
   });
 
+  testWidgets('UiDropdown supports multiple selection', (tester) async {
+    var selected = <String>['draft'];
+
+    await tester.pumpWidget(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return MaterialApp(
+            theme: UiTheme.light().toThemeData(),
+            home: Scaffold(
+              body: UiDropdown<String>.multiple(
+                label: 'Status',
+                value: selected,
+                clearable: true,
+                options: const [
+                  UiDropdownOption(value: 'draft', label: 'Draft'),
+                  UiDropdownOption(value: 'published', label: 'Published'),
+                  UiDropdownOption(value: 'archived', label: 'Archived'),
+                ],
+                onChanged: (values) {
+                  setState(() => selected = values);
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    expect(find.text('Draft'), findsOneWidget);
+
+    await tester.tap(find.text('Draft'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Published').last);
+    await tester.pumpAndSettle();
+
+    expect(selected, ['draft', 'published']);
+    expect(find.text('Draft, Published'), findsOneWidget);
+    expect(find.text('Archived'), findsOneWidget);
+
+    await tester.tap(find.text('Draft').last);
+    await tester.pumpAndSettle();
+
+    expect(selected, ['published']);
+    expect(find.text('Published'), findsWidgets);
+
+    await tester.tapAt(Offset.zero);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pumpAndSettle();
+
+    expect(selected, isEmpty);
+  });
+
   testWidgets('UiDropdown requires value to match exactly one option', (
     tester,
   ) async {

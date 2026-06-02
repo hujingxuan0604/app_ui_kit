@@ -39,6 +39,7 @@ class _ExampleHomeState extends State<ExampleHome> {
   String _inputDropdownValue = 'draft';
   String? _inputRequiredDropdownValue;
   String? _inputAssetDropdownValue = 'voiceover';
+  List<String> _inputMultiDropdownValues = ['draft', 'published'];
   String _panelDropdownValue = '16:9';
   String _selectedAvatarId = 'a';
 
@@ -257,6 +258,10 @@ class _ExampleHomeState extends State<ExampleHome> {
 
   void _selectAssetDropdownValue(String? value) {
     setState(() => _inputAssetDropdownValue = value);
+  }
+
+  void _selectMultiDropdownValues(List<String> values) {
+    setState(() => _inputMultiDropdownValues = values);
   }
 
   void _toggleSelectionToggle() {
