@@ -169,7 +169,7 @@ class _UiTextFieldState extends State<UiTextField> {
           fontSize: metrics.inputFontSize,
         ),
         decoration: InputDecoration(
-          isDense: true,
+          isDense: metrics.isDense,
           labelText: _showsFloatingLabel ? widget.label : null,
           labelStyle: labelStyle,
           floatingLabelStyle: labelStyle,
@@ -184,6 +184,7 @@ class _UiTextFieldState extends State<UiTextField> {
           ),
           filled: true,
           fillColor: _focused ? theme.surface : theme.surfaceLight,
+          constraints: BoxConstraints(minHeight: metrics.fieldMinHeight),
           prefixIcon: _prefixIcon == null
               ? null
               : IconTheme(
@@ -194,7 +195,15 @@ class _UiTextFieldState extends State<UiTextField> {
                   ),
                   child: _prefixIcon!,
                 ),
+          prefixIconConstraints: BoxConstraints(
+            minWidth: metrics.iconSlotSize,
+            minHeight: metrics.fieldMinHeight,
+          ),
           suffixIcon: _suffixIcon(theme, metrics),
+          suffixIconConstraints: BoxConstraints(
+            minWidth: metrics.iconSlotSize,
+            minHeight: metrics.fieldMinHeight,
+          ),
           contentPadding: metrics.contentPadding,
           border: _border(theme, theme.border),
           enabledBorder: _border(theme, theme.border),
@@ -358,6 +367,9 @@ class _UiTextFieldMetrics {
   final double inputFontSize;
   final double labelGap;
   final double iconSize;
+  final double iconSlotSize;
+  final double fieldMinHeight;
+  final bool isDense;
   final EdgeInsetsGeometry contentPadding;
 
   const _UiTextFieldMetrics({
@@ -365,6 +377,9 @@ class _UiTextFieldMetrics {
     required this.inputFontSize,
     required this.labelGap,
     required this.iconSize,
+    required this.iconSlotSize,
+    required this.fieldMinHeight,
+    required this.isDense,
     required this.contentPadding,
   });
 
@@ -376,6 +391,9 @@ class _UiTextFieldMetrics {
           inputFontSize: 12,
           labelGap: 4,
           iconSize: 16,
+          iconSlotSize: 32,
+          fieldMinHeight: 32,
+          isDense: true,
           contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         );
       case UiTextFieldSize.medium:
@@ -384,6 +402,9 @@ class _UiTextFieldMetrics {
           inputFontSize: 14,
           labelGap: 8,
           iconSize: 18,
+          iconSlotSize: 40,
+          fieldMinHeight: 42,
+          isDense: false,
           contentPadding: theme.components.textField.contentPadding,
         );
     }

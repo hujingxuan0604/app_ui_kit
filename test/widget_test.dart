@@ -288,7 +288,39 @@ void main() {
       input.decoration.contentPadding,
       const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
     );
+    expect(input.decoration.constraints, const BoxConstraints(minHeight: 48));
+    expect(tester.getSize(find.byType(InputDecorator)).height, 48);
   });
+
+  testWidgets(
+    'UiTextField keeps medium field height across adornments and error',
+    (tester) async {
+      await tester.pumpWidget(
+        const _TestApp(
+          child: Column(
+            children: [
+              UiTextField(initialValue: 'StoryFlow'),
+              UiTextField(
+                initialValue: 'StoryFlow',
+                prefix: Icon(Icons.person_outline),
+              ),
+              UiTextField(initialValue: 'Invalid', errorText: 'Required'),
+            ],
+          ),
+        ),
+      );
+
+      final fields = find.byType(InputDecorator);
+
+      expect(tester.getSize(fields.at(0)).height, 48);
+      expect(tester.getSize(fields.at(1)).height, 48);
+      expect(
+        tester.getTopLeft(find.text('Required')).dy -
+            tester.getTopLeft(fields.at(2)).dy,
+        greaterThanOrEqualTo(48),
+      );
+    },
+  );
 
   testWidgets('UiTextField supports floating label position', (tester) async {
     await tester.pumpWidget(
