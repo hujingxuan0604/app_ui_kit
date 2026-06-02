@@ -273,6 +273,23 @@ void main() {
     expect(find.text('Name'), findsOneWidget);
   });
 
+  testWidgets('UiTextField defaults to medium size', (tester) async {
+    await tester.pumpWidget(
+      const _TestApp(
+        child: UiTextField(label: 'Name', initialValue: 'StoryFlow'),
+      ),
+    );
+
+    final field = tester.widget<UiTextField>(find.byType(UiTextField));
+    final input = tester.widget<InputDecorator>(find.byType(InputDecorator));
+
+    expect(field.size, UiTextFieldSize.medium);
+    expect(
+      input.decoration.contentPadding,
+      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+    );
+  });
+
   testWidgets('UiTextField supports floating label position', (tester) async {
     await tester.pumpWidget(
       const _TestApp(

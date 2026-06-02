@@ -120,7 +120,7 @@ class UiTextFieldTheme {
     this.radius = UiRadii.md,
     this.contentPadding = const EdgeInsets.symmetric(
       horizontal: 14,
-      vertical: 8,
+      vertical: 10,
     ),
   });
 
