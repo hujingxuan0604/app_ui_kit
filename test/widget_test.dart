@@ -4,6 +4,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('UiThemeController loads and persists theme mode', () async {
+    final storage = _MemoryThemeModeStorage(ThemeMode.dark);
+    final controller = UiThemeController(storage: storage);
+    addTearDown(controller.dispose);
+
+    await controller.initThemeMode();
+
+    expect(controller.themeMode, ThemeMode.dark);
+
+    controller.themeMode = ThemeMode.light;
+    await Future<void>.delayed(Duration.zero);
+
+    expect(storage.themeMode, ThemeMode.light);
+  });
+
+  testWidgets('UiThemeModeSwitch controls app theme mode', (tester) async {
+    final controller = UiThemeController(
+      storage: _MemoryThemeModeStorage(),
+      persistMode: false,
+    );
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      UiThemeApp(
+        controller: controller,
+        loadPersistedMode: false,
+        home: const Scaffold(body: UiThemeModeSwitch()),
+      ),
+    );
+
+    expect(controller.themeMode, ThemeMode.system);
+
+    await tester.tap(find.byIcon(Icons.dark_mode_rounded));
+    await tester.pumpAndSettle();
+
+    expect(controller.themeMode, ThemeMode.dark);
+    expect(
+      Theme.of(tester.element(find.byType(Scaffold))).brightness,
+      Brightness.dark,
+    );
+  });
+
   testWidgets('UiMenu opens nested items and calls selected leaf', (
     tester,
   ) async {
@@ -497,6 +539,86 @@ void main() {
     expect(controller.selectedIndex, 2);
   });
 
+  testWidgets('UiTabs renders rich items and switches content', (tester) async {
+    final controller = UiTabsController(0);
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: UiTabs(
+          controller: controller,
+          style: UiTabsStyle.underline,
+          tabItems: const [
+            UiTabItem(
+              label: 'Overview',
+              icon: Icons.dashboard_outlined,
+              badgeLabel: '3',
+              content: Text('Overview panel'),
+            ),
+            UiTabItem(
+              label: 'Details',
+              icon: Icons.grid_view_rounded,
+              badgeLabel: '',
+              content: Text('Details panel'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.dashboard_outlined), findsOneWidget);
+    expect(find.text('3'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Container &&
+            widget.constraints ==
+                const BoxConstraints(
+                  minWidth: 14,
+                  maxWidth: double.infinity,
+                  minHeight: 14,
+                  maxHeight: 14,
+                ),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Container &&
+            widget.constraints ==
+                const BoxConstraints.tightFor(width: 6, height: 6),
+      ),
+      findsOneWidget,
+    );
+    final indicatorFinder = find.byWidgetPredicate(
+      (widget) =>
+          widget is Container &&
+          widget.constraints ==
+              const BoxConstraints.tightFor(width: 20, height: 2),
+    );
+    expect(indicatorFinder, findsOneWidget);
+    expect(
+      tester
+          .getRect(find.text('Overview'))
+          .overlaps(tester.getRect(find.text('3'))),
+      isFalse,
+    );
+    expect(
+      tester.getRect(find.text('Overview')).bottom,
+      lessThan(tester.getRect(indicatorFinder).top),
+    );
+    expect(find.text('Overview panel'), findsOneWidget);
+    expect(find.text('Details panel'), findsNothing);
+
+    await tester.tap(find.text('Details'));
+    await tester.pump();
+
+    expect(controller.selectedIndex, 1);
+    expect(find.text('Overview panel'), findsNothing);
+    expect(find.text('Details panel'), findsOneWidget);
+  });
+
   testWidgets('UiTabs requires selected index to be within items', (
     tester,
   ) async {
@@ -535,6 +657,36 @@ void main() {
 
     expect(tester.takeException(), isA<AssertionError>());
   });
+
+  testWidgets('UiTabs accepts either string items or rich tabItems', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const _TestApp(
+        child: UiTabs(
+          selectedIndex: 0,
+          items: ['Free creation'],
+          tabItems: [UiTabItem(label: 'Rich item')],
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isA<AssertionError>());
+  });
+}
+
+class _MemoryThemeModeStorage implements UiThemeModeStorage {
+  ThemeMode? themeMode;
+
+  _MemoryThemeModeStorage([this.themeMode]);
+
+  @override
+  Future<ThemeMode?> readThemeMode() async => themeMode;
+
+  @override
+  Future<void> writeThemeMode(ThemeMode themeMode) async {
+    this.themeMode = themeMode;
+  }
 }
 
 class _TestApp extends StatelessWidget {

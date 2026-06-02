@@ -1,14 +1,7 @@
 part of '../main.dart';
 
 class ExampleHome extends StatefulWidget {
-  final ThemeMode themeMode;
-  final ValueChanged<ThemeMode> onThemeModeChanged;
-
-  const ExampleHome({
-    super.key,
-    required this.themeMode,
-    required this.onThemeModeChanged,
-  });
+  const ExampleHome({super.key});
 
   @override
   State<ExampleHome> createState() => _ExampleHomeState();
@@ -22,6 +15,7 @@ class _ExampleHomeState extends State<ExampleHome> {
   final _searchController = TextEditingController();
   final _panelNameController = TextEditingController(text: '镜头 01');
   final _tabsController = UiTabsController(0);
+  final _contentTabsController = UiTabsController(0);
   late final ValueNotifier<String> _activeSectionId;
   final _sections = const [
     _CatalogSection('tokens', Icons.palette_outlined),
@@ -61,6 +55,7 @@ class _ExampleHomeState extends State<ExampleHome> {
     _searchController.dispose();
     _panelNameController.dispose();
     _tabsController.dispose();
+    _contentTabsController.dispose();
     super.dispose();
   }
 
@@ -130,10 +125,10 @@ class _ExampleHomeState extends State<ExampleHome> {
                               strings: strings,
                               onChanged: _changeLanguage,
                             ),
-                            _ThemeModeSwitch(
-                              value: widget.themeMode,
-                              strings: strings,
-                              onChanged: widget.onThemeModeChanged,
+                            UiThemeModeSwitch(
+                              lightTooltip: strings.lightMode,
+                              darkTooltip: strings.darkMode,
+                              systemTooltip: strings.systemMode,
                             ),
                           ],
                         ),

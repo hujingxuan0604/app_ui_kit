@@ -67,6 +67,50 @@ Widget _buildNavigationSection(
         ),
       ),
       _ExampleCard(
+        title: 'UiTabs rich items / content',
+        height: 320,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            UiTabs(
+              controller: state._contentTabsController,
+              style: UiTabsStyle.underline,
+              tabItems: [
+                UiTabItem(
+                  label: '选项',
+                  icon: Icons.dashboard_outlined,
+                  badgeLabel: '',
+                  content: _TabContentPanel(title: '内容区 1', value: '24'),
+                ),
+                UiTabItem(
+                  label: '选项',
+                  badgeLabel: '8',
+                  content: _TabContentPanel(title: '内容区 2', value: '8'),
+                ),
+                UiTabItem(
+                  label: '选项',
+                  icon: Icons.grid_view_rounded,
+                  content: _TabContentPanel(title: '内容区 3', value: '12'),
+                ),
+              ],
+              onChanged: (index) => UiToast.info('Tab $index'),
+            ),
+            const SizedBox(height: 16),
+            UiTabs(
+              selectedIndex: 0,
+              style: UiTabsStyle.segmented,
+              fullWidth: false,
+              tabItems: const [
+                UiTabItem(label: '选项1'),
+                UiTabItem(label: '选项2', badgeLabel: '2'),
+                UiTabItem(label: '选项3', icon: Icons.auto_awesome_outlined),
+              ],
+              onChanged: (_) => UiToast.info(strings.changed),
+            ),
+          ],
+        ),
+      ),
+      _ExampleCard(
         title: 'UiMenu / UiMenuItem',
         height: 360,
         child: const _MenuExample(),
@@ -129,6 +173,33 @@ Widget _buildNavigationSection(
       ),
     ],
   );
+}
+
+class _TabContentPanel extends StatelessWidget {
+  final String title;
+  final String value;
+
+  const _TabContentPanel({required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.uiTheme;
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              color: theme.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        UiBadge(label: value, color: theme.primary),
+      ],
+    );
+  }
 }
 
 String _tabLabel(int index, _ExampleStrings strings) {

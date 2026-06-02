@@ -205,31 +205,66 @@ class UiDialogTheme {
 class UiTabsTheme {
   final double radius;
   final double indicatorRadius;
+  final double contentRadius;
   final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry contentPadding;
   final double smallHeight;
   final double mediumHeight;
   final double largeHeight;
+  final double smallUnderlineHeight;
+  final double mediumUnderlineHeight;
+  final double largeUnderlineHeight;
   final double itemMinWidth;
+  final double contentMinHeight;
+  final double contentGap;
 
   const UiTabsTheme({
     this.radius = UiRadii.lg,
     this.indicatorRadius = UiRadii.md,
+    this.contentRadius = UiRadii.lg,
     this.padding = const EdgeInsets.all(4),
+    this.contentPadding = const EdgeInsets.all(16),
     this.smallHeight = 30,
     this.mediumHeight = 36,
     this.largeHeight = 42,
+    this.smallUnderlineHeight = 40,
+    this.mediumUnderlineHeight = 48,
+    this.largeUnderlineHeight = 56,
     this.itemMinWidth = 88,
+    this.contentMinHeight = 120,
+    this.contentGap = 8,
   });
 
   static UiTabsTheme lerp(UiTabsTheme a, UiTabsTheme b, double t) {
     return UiTabsTheme(
       radius: _lerpDouble(a.radius, b.radius, t),
       indicatorRadius: _lerpDouble(a.indicatorRadius, b.indicatorRadius, t),
+      contentRadius: _lerpDouble(a.contentRadius, b.contentRadius, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t) ?? b.padding,
+      contentPadding:
+          EdgeInsetsGeometry.lerp(a.contentPadding, b.contentPadding, t) ??
+          b.contentPadding,
       smallHeight: _lerpDouble(a.smallHeight, b.smallHeight, t),
       mediumHeight: _lerpDouble(a.mediumHeight, b.mediumHeight, t),
       largeHeight: _lerpDouble(a.largeHeight, b.largeHeight, t),
+      smallUnderlineHeight: _lerpDouble(
+        a.smallUnderlineHeight,
+        b.smallUnderlineHeight,
+        t,
+      ),
+      mediumUnderlineHeight: _lerpDouble(
+        a.mediumUnderlineHeight,
+        b.mediumUnderlineHeight,
+        t,
+      ),
+      largeUnderlineHeight: _lerpDouble(
+        a.largeUnderlineHeight,
+        b.largeUnderlineHeight,
+        t,
+      ),
       itemMinWidth: _lerpDouble(a.itemMinWidth, b.itemMinWidth, t),
+      contentMinHeight: _lerpDouble(a.contentMinHeight, b.contentMinHeight, t),
+      contentGap: _lerpDouble(a.contentGap, b.contentGap, t),
     );
   }
 
@@ -238,23 +273,37 @@ class UiTabsTheme {
     return other is UiTabsTheme &&
         other.radius == radius &&
         other.indicatorRadius == indicatorRadius &&
+        other.contentRadius == contentRadius &&
         other.padding == padding &&
+        other.contentPadding == contentPadding &&
         other.smallHeight == smallHeight &&
         other.mediumHeight == mediumHeight &&
         other.largeHeight == largeHeight &&
-        other.itemMinWidth == itemMinWidth;
+        other.smallUnderlineHeight == smallUnderlineHeight &&
+        other.mediumUnderlineHeight == mediumUnderlineHeight &&
+        other.largeUnderlineHeight == largeUnderlineHeight &&
+        other.itemMinWidth == itemMinWidth &&
+        other.contentMinHeight == contentMinHeight &&
+        other.contentGap == contentGap;
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     radius,
     indicatorRadius,
+    contentRadius,
     padding,
+    contentPadding,
     smallHeight,
     mediumHeight,
     largeHeight,
+    smallUnderlineHeight,
+    mediumUnderlineHeight,
+    largeUnderlineHeight,
     itemMinWidth,
-  );
+    contentMinHeight,
+    contentGap,
+  ]);
 }
 
 double _lerpDouble(double a, double b, double t) {

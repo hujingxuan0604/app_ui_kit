@@ -1,6 +1,7 @@
 export 'src/models/ui_models.dart';
 export 'src/theme/ui_theme.dart';
 export 'src/theme/ui_component_theme.dart';
+export 'src/theme/ui_theme_controller.dart';
 export 'src/theme/ui_theme_data.dart';
 export 'src/tokens/ui_colors.dart';
 export 'src/tokens/ui_motion.dart';
@@ -33,6 +34,7 @@ export 'src/widgets/inputs/ui_dropdown.dart';
 export 'src/widgets/navigation/ui_menu.dart';
 export 'src/widgets/navigation/ui_sidebar.dart';
 export 'src/widgets/navigation/ui_tabs.dart';
+export 'src/widgets/navigation/ui_theme_mode_switch.dart';
 export 'src/widgets/panels/ui_panel.dart';
 export 'src/widgets/surfaces/ui_card.dart';
 export 'src/widgets/surfaces/ui_selectable_card.dart';
