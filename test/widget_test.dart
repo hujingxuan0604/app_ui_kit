@@ -355,6 +355,230 @@ void main() {
     expect(tester.takeException(), isA<AssertionError>());
   });
 
+  testWidgets('UiCalendar selects single dates', (tester) async {
+    DateTime? selected = DateTime(2026, 6, 3);
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: SizedBox(
+          width: 360,
+          child: UiCalendar(
+            value: selected,
+            initialMonth: DateTime(2026, 6),
+            onChanged: (value) => selected = value,
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('15'));
+    await tester.pumpAndSettle();
+
+    expect(selected, DateTime(2026, 6, 15));
+  });
+
+  testWidgets('UiCalendar supports multiple date selection', (tester) async {
+    var selected = <DateTime>[DateTime(2026, 6, 3)];
+
+    await tester.pumpWidget(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return _TestApp(
+            child: SizedBox(
+              width: 360,
+              child: UiCalendar.multiple(
+                value: selected,
+                initialMonth: DateTime(2026, 6),
+                onChanged: (values) => setState(() => selected = values),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    await tester.tap(find.text('8').first);
+    await tester.pumpAndSettle();
+
+    expect(selected, [DateTime(2026, 6, 3), DateTime(2026, 6, 8)]);
+
+    await tester.tap(find.text('3').first);
+    await tester.pumpAndSettle();
+
+    expect(selected, [DateTime(2026, 6, 8)]);
+  });
+
+  testWidgets('UiCalendar supports range selection', (tester) async {
+    DateTimeRange? selected;
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: SizedBox(
+          width: 360,
+          child: UiCalendar.range(
+            initialMonth: DateTime(2026, 6),
+            onChanged: (value) => selected = value,
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('10').first);
+    await tester.pumpAndSettle();
+
+    expect(selected, isNull);
+
+    await tester.tap(find.text('14').first);
+    await tester.pumpAndSettle();
+
+    expect(selected, isNotNull);
+    expect(selected!.start, DateTime(2026, 6, 10));
+    expect(selected!.end, DateTime(2026, 6, 14));
+  });
+
+  testWidgets('UiDateTimePicker opens panel and confirms value', (
+    tester,
+  ) async {
+    DateTime? selected = DateTime(2026, 6, 3, 14, 30);
+
+    await tester.pumpWidget(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return _TestApp(
+            child: SizedBox(
+              width: 320,
+              child: UiDateTimePicker(
+                label: 'Schedule',
+                value: selected,
+                mode: UiDateTimePickerMode.minute,
+                title: 'Select schedule',
+                onChanged: (value) => setState(() => selected = value),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    expect(find.text('2026-06-03 14:30'), findsOneWidget);
+
+    await tester.tap(find.text('2026-06-03 14:30'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Select schedule'), findsOneWidget);
+    expect(find.byType(UiBottomPopup), findsOneWidget);
+
+    await tester.tap(find.text('Confirm'));
+    await tester.pumpAndSettle();
+
+    expect(selected, DateTime(2026, 6, 3, 14, 30));
+    expect(find.text('Select schedule'), findsNothing);
+  });
+
+  testWidgets('UiDateTimePicker wheel supports desktop mouse drag', (
+    tester,
+  ) async {
+    DateTime? preview;
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: SizedBox(
+          width: 320,
+          child: UiDateTimePicker(
+            label: 'Schedule',
+            value: DateTime(2026, 6, 3, 14, 30),
+            mode: UiDateTimePickerMode.minute,
+            title: 'Select schedule',
+            onPreviewChanged: (value) => preview = value,
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('2026-06-03 14:30'));
+    await tester.pumpAndSettle();
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.down(
+      tester.getCenter(find.byType(ListWheelScrollView).first),
+    );
+    await tester.pump(const Duration(milliseconds: 50));
+    await gesture.moveBy(const Offset(0, -120));
+    await tester.pump(const Duration(milliseconds: 50));
+    await gesture.moveBy(const Offset(0, -120));
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(preview, isNotNull);
+    expect(preview!.year, isNot(2026));
+  });
+
+  testWidgets('UiDateTimePicker minute mode renders one day column', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _TestApp(
+        child: SizedBox(
+          width: 320,
+          child: UiDateTimePicker(
+            label: 'Schedule',
+            value: DateTime(2026, 1, 28, 14, 30),
+            mode: UiDateTimePickerMode.minute,
+            title: 'Select schedule',
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('2026-01-28 14:30'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('2026年'), findsOneWidget);
+    expect(find.text('01月'), findsOneWidget);
+    expect(find.text('28日'), findsOneWidget);
+    expect(find.text('14时'), findsOneWidget);
+    expect(find.text('30分'), findsOneWidget);
+  });
+
+  testWidgets('UiDateTimePicker clamps day when month changes', (tester) async {
+    var previewChanged = false;
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: SizedBox(
+          width: 320,
+          child: UiDateTimePicker(
+            label: 'Schedule',
+            value: DateTime(2026, 3, 30, 14, 30),
+            mode: UiDateTimePickerMode.minute,
+            title: 'Select schedule',
+            onPreviewChanged: (_) => previewChanged = true,
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('2026-03-30 14:30'));
+    await tester.pumpAndSettle();
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.down(
+      tester.getCenter(find.byType(ListWheelScrollView).at(1)),
+    );
+    await tester.pump(const Duration(milliseconds: 50));
+    await gesture.moveBy(const Offset(0, 120));
+    await tester.pump(const Duration(milliseconds: 50));
+    await gesture.moveBy(const Offset(0, 120));
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(previewChanged, isTrue);
+  });
+
   testWidgets('UiTextField keeps outside label by default', (tester) async {
     await tester.pumpWidget(
       const _TestApp(
@@ -547,6 +771,188 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(UiBottomSheet), findsNothing);
+  });
+
+  testWidgets('UiBottomPopup opens and closes from helper', (tester) async {
+    await tester.pumpWidget(
+      _TestApp(
+        child: Builder(
+          builder: (context) {
+            return UiButton(
+              label: 'Open popup',
+              onPressed: () {
+                UiBottomPopup.show<void>(
+                  context: context,
+                  builder: (_) => const UiBottomPopup(
+                    title: 'Popup title',
+                    description: 'Popup description',
+                    child: Text('Popup body'),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open popup'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(UiBottomPopup), findsOneWidget);
+    expect(find.text('Popup title'), findsOneWidget);
+    expect(find.text('Popup body'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(UiBottomPopup), findsNothing);
+  });
+
+  testWidgets('UiSideDrawer opens from the left by default', (tester) async {
+    await tester.pumpWidget(
+      _TestApp(
+        child: Builder(
+          builder: (context) {
+            return UiButton(
+              label: 'Open left drawer',
+              onPressed: () {
+                UiSideDrawer.show<void>(
+                  context: context,
+                  builder: (_) => const UiSideDrawer(
+                    title: 'Left drawer',
+                    child: Text('Left drawer body'),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open left drawer'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(UiSideDrawer), findsOneWidget);
+    expect(
+      tester.widget<UiSideDrawer>(find.byType(UiSideDrawer)).side,
+      UiSideDrawerSide.left,
+    );
+    expect(tester.getRect(find.text('Left drawer body')).left, lessThan(80));
+  });
+
+  testWidgets('UiSideDrawer opens from the right and closes from helper', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _TestApp(
+        child: Builder(
+          builder: (context) {
+            return UiButton(
+              label: 'Open right drawer',
+              onPressed: () {
+                UiSideDrawer.show<void>(
+                  context: context,
+                  side: UiSideDrawerSide.right,
+                  builder: (_) => const UiSideDrawer(
+                    side: UiSideDrawerSide.right,
+                    title: 'Right drawer',
+                    width: 280,
+                    child: Text('Right drawer body'),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open right drawer'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(UiSideDrawer), findsOneWidget);
+    expect(
+      tester.widget<UiSideDrawer>(find.byType(UiSideDrawer)).side,
+      UiSideDrawerSide.right,
+    );
+    expect(
+      tester.getRect(find.text('Right drawer body')).left,
+      greaterThan(800 - 280),
+    );
+
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(UiSideDrawer), findsNothing);
+  });
+
+  testWidgets('UiSideDrawer widthFactor follows screen width', (tester) async {
+    await tester.pumpWidget(
+      _TestApp(
+        child: Builder(
+          builder: (context) {
+            return UiButton(
+              label: 'Open factor drawer',
+              onPressed: () {
+                UiSideDrawer.show<void>(
+                  context: context,
+                  builder: (_) => const UiSideDrawer(
+                    widthFactor: 0.5,
+                    scrollable: false,
+                    contentPadding: EdgeInsets.zero,
+                    child: SizedBox.expand(key: ValueKey('factor-body')),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open factor drawer'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getSize(find.byKey(const ValueKey('factor-body'))).width,
+      inInclusiveRange(396, 400),
+    );
+  });
+
+  testWidgets('UiSideDrawer clamps oversized fixed width', (tester) async {
+    await tester.pumpWidget(
+      _TestApp(
+        child: Builder(
+          builder: (context) {
+            return UiButton(
+              label: 'Open wide drawer',
+              onPressed: () {
+                UiSideDrawer.show<void>(
+                  context: context,
+                  builder: (_) => const UiSideDrawer(
+                    width: 1200,
+                    maxWidthFactor: 0.75,
+                    scrollable: false,
+                    contentPadding: EdgeInsets.zero,
+                    child: SizedBox.expand(key: ValueKey('wide-body')),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open wide drawer'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getSize(find.byKey(const ValueKey('wide-body'))).width,
+      inInclusiveRange(596, 600),
+    );
   });
 
   testWidgets('UiTabs calls onChanged when an item is selected', (

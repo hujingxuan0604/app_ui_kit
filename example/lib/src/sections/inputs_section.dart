@@ -236,6 +236,70 @@ Widget _buildInputsSection(
         ),
       ),
       _ExampleCard(
+        title: 'UiCalendar',
+        child: Column(
+          children: [
+            UiCalendar(
+              value: state._calendarDate,
+              minDate: DateTime(2026, 6),
+              maxDate: DateTime(2026, 8, 31),
+              onChanged: (value) {
+                state._selectCalendarDate(value);
+                UiToast.info(strings.changed);
+              },
+            ),
+            const SizedBox(height: 14),
+            UiCalendar.multiple(
+              value: state._calendarDates,
+              initialMonth: DateTime(2026, 6),
+              showHeader: false,
+              onChanged: state._selectCalendarDates,
+            ),
+            const SizedBox(height: 14),
+            UiCalendar.range(
+              value: state._calendarRange,
+              initialMonth: DateTime(2026, 6),
+              onChanged: state._selectCalendarRange,
+            ),
+          ],
+        ),
+      ),
+      _ExampleCard(
+        title: 'UiDateTimePicker',
+        child: Column(
+          children: [
+            UiDateTimePicker(
+              label: '日期时间',
+              hintText: '选择日期时间',
+              value: state._dateTimeValue,
+              mode: UiDateTimePickerMode.minute,
+              minDate: DateTime(2026, 1),
+              maxDate: DateTime(2026, 12, 31, 23, 59),
+              clearable: true,
+              title: '选择日期时间',
+              cancelText: '取消',
+              confirmText: '确定',
+              onChanged: (value) {
+                state._selectDateTime(value);
+                UiToast.info(strings.changed);
+              },
+            ),
+            const SizedBox(height: 14),
+            UiDateTimePicker(
+              label: '时间',
+              hintText: '选择时间',
+              value: state._timeValue,
+              mode: UiDateTimePickerMode.time,
+              prefix: const Icon(Icons.schedule_outlined),
+              title: '选择时间',
+              cancelText: '取消',
+              confirmText: '确定',
+              onChanged: state._selectTime,
+            ),
+          ],
+        ),
+      ),
+      _ExampleCard(
         title: strings.formExample,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

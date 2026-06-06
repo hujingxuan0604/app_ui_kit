@@ -40,6 +40,14 @@ class _ExampleHomeState extends State<ExampleHome> {
   String? _inputRequiredDropdownValue;
   String? _inputAssetDropdownValue = 'voiceover';
   List<String> _inputMultiDropdownValues = ['draft', 'published'];
+  DateTime? _calendarDate = DateTime(2026, 6, 3);
+  List<DateTime> _calendarDates = [DateTime(2026, 6, 3), DateTime(2026, 6, 8)];
+  DateTimeRange? _calendarRange = DateTimeRange(
+    start: DateTime(2026, 6, 10),
+    end: DateTime(2026, 6, 14),
+  );
+  DateTime? _dateTimeValue = DateTime(2026, 6, 3, 14, 30);
+  DateTime? _timeValue = DateTime(2026, 6, 3, 9, 15, 0);
   String _panelDropdownValue = '16:9';
   String _selectedAvatarId = 'a';
 
@@ -262,6 +270,26 @@ class _ExampleHomeState extends State<ExampleHome> {
 
   void _selectMultiDropdownValues(List<String> values) {
     setState(() => _inputMultiDropdownValues = values);
+  }
+
+  void _selectCalendarDate(DateTime? value) {
+    setState(() => _calendarDate = value);
+  }
+
+  void _selectCalendarDates(List<DateTime> values) {
+    setState(() => _calendarDates = values);
+  }
+
+  void _selectCalendarRange(DateTimeRange? value) {
+    setState(() => _calendarRange = value);
+  }
+
+  void _selectDateTime(DateTime? value) {
+    setState(() => _dateTimeValue = value);
+  }
+
+  void _selectTime(DateTime? value) {
+    setState(() => _timeValue = value);
   }
 
   void _toggleSelectionToggle() {

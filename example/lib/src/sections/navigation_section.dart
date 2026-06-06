@@ -145,6 +145,39 @@ Widget _buildNavigationSection(
         ),
       ),
       _ExampleCard(
+        title: 'UiSideDrawer',
+        child: Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            UiButton(
+              label: strings.leftSideDrawer,
+              icon: const Icon(Icons.keyboard_tab_rounded),
+              variant: UiButtonVariant.secondary,
+              onPressed: () => _showSideDrawer(
+                context,
+                state,
+                strings,
+                UiSideDrawerSide.left,
+                items,
+              ),
+            ),
+            UiButton(
+              label: strings.rightSideDrawer,
+              icon: const Icon(Icons.keyboard_tab_rounded),
+              variant: UiButtonVariant.secondary,
+              onPressed: () => _showSideDrawer(
+                context,
+                state,
+                strings,
+                UiSideDrawerSide.right,
+                items,
+              ),
+            ),
+          ],
+        ),
+      ),
+      _ExampleCard(
         title: strings.assetRecipe,
         height: 360,
         child: Row(
@@ -172,6 +205,62 @@ Widget _buildNavigationSection(
         ),
       ),
     ],
+  );
+}
+
+void _showSideDrawer(
+  BuildContext context,
+  _ExampleHomeState state,
+  _ExampleStrings strings,
+  UiSideDrawerSide side,
+  List<UiSidebarItemData<int>> items,
+) {
+  UiSideDrawer.show<void>(
+    context: context,
+    side: side,
+    builder: (drawerContext) => UiSideDrawer(
+      side: side,
+      width: side == UiSideDrawerSide.left ? 320 : null,
+      widthFactor: side == UiSideDrawerSide.right ? 0.42 : null,
+      title: strings.sideDrawer,
+      description: strings.sideDrawerDescription,
+      leading: const Icon(Icons.view_sidebar_outlined),
+      footer: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          UiButton(
+            label: strings.close,
+            variant: UiButtonVariant.secondary,
+            size: UiButtonSize.small,
+            onPressed: () => Navigator.of(drawerContext).pop(),
+          ),
+          const SizedBox(width: 8),
+          UiButton(
+            label: strings.save,
+            size: UiButtonSize.small,
+            onPressed: () => Navigator.of(drawerContext).pop(),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          for (final item in items) ...[
+            UiSidebarItem(
+              label: item.label,
+              leading:
+                  item.leading ?? (item.icon == null ? null : Icon(item.icon)),
+              countLabel: item.countLabel,
+              selected: item.value == state._selectedFolderIndex,
+              onTap: () {
+                state._selectFolder(item.value);
+                UiToast.info(item.label);
+              },
+            ),
+            const SizedBox(height: 4),
+          ],
+        ],
+      ),
+    ),
   );
 }
 

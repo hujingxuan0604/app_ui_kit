@@ -188,6 +188,12 @@ class _ExampleStrings {
   String get createFolder => isZh ? '新建文件夹' : 'Create folder';
   String get renameFolder => isZh ? '重命名文件夹' : 'Rename folder';
   String get deleteFolder => isZh ? '删除文件夹' : 'Delete folder';
+  String get sideDrawer => isZh ? '侧边抽屉' : 'Side drawer';
+  String get leftSideDrawer => isZh ? '左侧抽屉' : 'Left drawer';
+  String get rightSideDrawer => isZh ? '右侧抽屉' : 'Right drawer';
+  String get sideDrawerDescription => isZh
+      ? '支持从左侧或右侧滑出，适合筛选、导航和快捷设置。'
+      : 'Slides from the left or right for filters, navigation, and quick settings.';
 
   String get shotList => isZh ? '镜头列表' : 'Shot list';
   String get defaultShotName => isZh ? '镜头 01' : 'Shot 01';

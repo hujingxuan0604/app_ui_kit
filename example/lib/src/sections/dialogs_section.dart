@@ -133,6 +133,62 @@ Widget _buildDialogsSection(BuildContext context, _ExampleStrings strings) {
           ],
         ),
       ),
+      _ExampleCard(
+        title: 'UiBottomPopup',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            UiButton(
+              label: '底部弹窗',
+              icon: const Icon(Icons.keyboard_tab_rounded),
+              variant: UiButtonVariant.secondary,
+              onPressed: () {
+                UiBottomPopup.show<void>(
+                  context: context,
+                  builder: (popupContext) => UiBottomPopup(
+                    title: '快捷操作',
+                    description: '适合承载选择器、快捷操作和轻量内容。',
+                    leading: const Icon(Icons.tune_rounded),
+                    footer: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        UiButton(
+                          label: strings.close,
+                          variant: UiButtonVariant.secondary,
+                          size: UiButtonSize.small,
+                          onPressed: () => Navigator.of(popupContext).pop(),
+                        ),
+                        const SizedBox(width: 8),
+                        UiButton(
+                          label: strings.save,
+                          size: UiButtonSize.small,
+                          onPressed: () => Navigator.of(popupContext).pop(),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        UiInfoRow(
+                          label: strings.status,
+                          value: strings.publishedStatus,
+                          icon: const Icon(Icons.check_circle_outline),
+                        ),
+                        const SizedBox(height: 12),
+                        UiInfoRow(
+                          label: strings.assetType,
+                          value: strings.voiceover,
+                          icon: const Icon(Icons.mic_none_outlined),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     ],
   );
 }
