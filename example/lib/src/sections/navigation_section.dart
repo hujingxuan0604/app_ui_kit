@@ -5,6 +5,7 @@ Widget _buildNavigationSection(
   BuildContext context,
   _ExampleStrings strings,
 ) {
+  final themeController = context.uiThemeController;
   final items = [
     UiSidebarItemData(
       value: 0,
@@ -106,6 +107,26 @@ Widget _buildNavigationSection(
                 UiTabItem(label: '选项3', icon: Icons.auto_awesome_outlined),
               ],
               onChanged: (_) => UiToast.info(strings.changed),
+            ),
+          ],
+        ),
+      ),
+      _ExampleCard(
+        title: 'UiThemeModeTabs',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            UiThemeModeTabs(
+              value: themeController.themeMode,
+              labels: [strings.light, strings.dark, strings.systemMode],
+              onChanged: (mode) {
+                unawaited(themeController.setThemeMode(mode));
+              },
+            ),
+            const SizedBox(height: 16),
+            UiInfoRow(
+              label: strings.currentMode,
+              value: _themeModeLabel(themeController.themeMode, strings),
             ),
           ],
         ),
@@ -301,6 +322,14 @@ String _tabLabel(int index, _ExampleStrings strings) {
     default:
       return strings.freeCreation;
   }
+}
+
+String _themeModeLabel(ThemeMode mode, _ExampleStrings strings) {
+  return switch (mode) {
+    ThemeMode.light => strings.lightMode,
+    ThemeMode.dark => strings.darkMode,
+    ThemeMode.system => strings.systemMode,
+  };
 }
 
 class _MenuExample extends StatelessWidget {

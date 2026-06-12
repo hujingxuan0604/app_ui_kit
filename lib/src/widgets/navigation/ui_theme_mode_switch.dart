@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-import '../../theme/ui_theme_controller.dart';
 import '../../theme/ui_theme_data.dart';
+import '../../theme/ui_theme_scope.dart';
 
 class UiThemeModeSwitch extends StatelessWidget {
   final bool showSystemMode;
@@ -43,7 +45,9 @@ class UiThemeModeSwitch extends StatelessWidget {
             isSelected: currentMode == ThemeMode.light,
             width: itemWidth,
             height: itemHeight,
-            onTap: () => controller.themeMode = ThemeMode.light,
+            onTap: () {
+              unawaited(controller.setLight());
+            },
           ),
           _UiThemeModeButton(
             icon: Icons.dark_mode_rounded,
@@ -51,7 +55,9 @@ class UiThemeModeSwitch extends StatelessWidget {
             isSelected: currentMode == ThemeMode.dark,
             width: itemWidth,
             height: itemHeight,
-            onTap: () => controller.themeMode = ThemeMode.dark,
+            onTap: () {
+              unawaited(controller.setDark());
+            },
           ),
           if (showSystemMode)
             _UiThemeModeButton(
@@ -60,7 +66,9 @@ class UiThemeModeSwitch extends StatelessWidget {
               isSelected: currentMode == ThemeMode.system,
               width: itemWidth,
               height: itemHeight,
-              onTap: () => controller.themeMode = ThemeMode.system,
+              onTap: () {
+                unawaited(controller.setSystem());
+              },
             ),
         ],
       ),

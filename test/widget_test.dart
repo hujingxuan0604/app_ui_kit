@@ -5,31 +5,43 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('UiThemeController loads and persists theme mode', () async {
-    final storage = _MemoryThemeModeStorage(ThemeMode.dark);
-    final controller = UiThemeController(storage: storage);
+    final store = _MemoryThemeModeStore(ThemeMode.dark);
+    final controller = UiThemeController(store: store);
     addTearDown(controller.dispose);
 
-    await controller.initThemeMode();
+    await controller.load();
 
     expect(controller.themeMode, ThemeMode.dark);
+    expect(controller.isLoaded, isTrue);
 
-    controller.themeMode = ThemeMode.light;
-    await Future<void>.delayed(Duration.zero);
+    await controller.setThemeMode(ThemeMode.light);
 
-    expect(storage.themeMode, ThemeMode.light);
+    expect(store.themeMode, ThemeMode.light);
+  });
+
+  test('UiThemeController ignores repeated theme mode changes', () async {
+    final store = _MemoryThemeModeStore(ThemeMode.dark);
+    final controller = UiThemeController(store: store);
+    addTearDown(controller.dispose);
+
+    var notifications = 0;
+    controller.addListener(() => notifications++);
+
+    await controller.setThemeMode(ThemeMode.dark);
+    await controller.setThemeMode(ThemeMode.dark);
+
+    expect(controller.themeMode, ThemeMode.dark);
+    expect(store.saveCount, 1);
+    expect(notifications, 1);
   });
 
   testWidgets('UiThemeModeSwitch controls app theme mode', (tester) async {
-    final controller = UiThemeController(
-      storage: _MemoryThemeModeStorage(),
-      persistMode: false,
-    );
+    final controller = UiThemeController();
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(
       UiThemeApp(
         controller: controller,
-        loadPersistedMode: false,
         home: const Scaffold(body: UiThemeModeSwitch()),
       ),
     );
@@ -44,6 +56,45 @@ void main() {
       Theme.of(tester.element(find.byType(Scaffold))).brightness,
       Brightness.dark,
     );
+  });
+
+  testWidgets('UiThemeScope exposes the current controller', (tester) async {
+    final controller = UiThemeController(initialMode: ThemeMode.dark);
+    addTearDown(controller.dispose);
+
+    UiThemeController? watched;
+    UiThemeController? read;
+
+    await tester.pumpWidget(
+      UiThemeApp(
+        controller: controller,
+        home: Builder(
+          builder: (context) {
+            watched = UiThemeScope.of(context);
+            read = UiThemeScope.read(context);
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+
+    expect(watched, same(controller));
+    expect(read, same(controller));
+  });
+
+  testWidgets('UiThemeModeTabs reports selected theme mode', (tester) async {
+    final values = <ThemeMode>[];
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: UiThemeModeTabs(value: ThemeMode.system, onChanged: values.add),
+      ),
+    );
+
+    await tester.tap(find.text('Dark'));
+    await tester.pump();
+
+    expect(values, [ThemeMode.dark]);
   });
 
   testWidgets('UiMenu opens nested items and calls selected leaf', (
@@ -1134,16 +1185,18 @@ void main() {
   });
 }
 
-class _MemoryThemeModeStorage implements UiThemeModeStorage {
+class _MemoryThemeModeStore implements UiThemeModeStore {
   ThemeMode? themeMode;
+  int saveCount = 0;
 
-  _MemoryThemeModeStorage([this.themeMode]);
-
-  @override
-  Future<ThemeMode?> readThemeMode() async => themeMode;
+  _MemoryThemeModeStore([this.themeMode]);
 
   @override
-  Future<void> writeThemeMode(ThemeMode themeMode) async {
+  Future<ThemeMode?> loadThemeMode() async => themeMode;
+
+  @override
+  Future<void> saveThemeMode(ThemeMode themeMode) async {
+    saveCount += 1;
     this.themeMode = themeMode;
   }
 }
